@@ -23,6 +23,7 @@
             <table class="table bordered-table mb-0" id="dataTable" data-page-length='10'>
                 <thead>
                     <tr>
+                        <th scope="col">S.No</th>
                         <th scope="col">Plant id</th>
                         <th scope="col">Plant Owner</th>
                         <th scope="col">Palnt Name</th>
@@ -32,6 +33,7 @@
                 <tbody>
                     {% for plant in plants %}
                     <tr>
+                        <td>{{ forloop.counter }}</td>
                         <td>{{ plant.plant_id }}</td>
                         <td>{{ plant.plant_owner.username }}</td>
                         <td>{{ plant.plant_name }}</td>

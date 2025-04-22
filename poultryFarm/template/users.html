@@ -23,7 +23,8 @@
             <table class="table bordered-table" id="dataTable" data-page-length='10'>
                 <thead>
                     <tr>
-                        <th scope="col">Name</th>
+                        <th scope="col">S.No</th>
+                        <th scope="col">User Name</th>
                         <th scope="col">Email</th>
                         <th scope="col">Password</th>
                         <th scope="col">Designation</th>
@@ -34,6 +35,7 @@
                 <tbody>
                     {% for user in users %}
                     <tr>
+                        <td>{{ forloop.counter }}</td>
                         <td>{{ user.username }}</td>
                         <td>{{ user.email }}</td>
                         <td>*****</td>
@@ -48,9 +50,9 @@
                         </td>
                         <td>
                             {% if user.reporting_manager %}
-                                <span>{{ user.reporting_manager.username }}</span>  
+                            <span>{{ user.reporting_manager.username }}</span>
                             {% else %}
-                                <span>Admin</span>
+                            <span>Admin</span>
                             {% endif %}
                         </td>
 
@@ -96,14 +98,15 @@
                     <input type="hidden" id="id" name="id">
                     <div class="row">
                         <div class="col-6 mb-20">
-                            <label class="form-label fw-semibold text-primary-light text-sm mb-8">Name </label>
+                            <label class="form-label fw-semibold text-primary-light text-sm mb-8">User Name <span
+                                    style="color: Red;">Enter Unique Name</span> </label>
                             <input type="text" id="username" name="username" class="form-control radius-8"
-                                placeholder="Enter Name " required>
+                                placeholder="Enter Name name121" required>
                         </div>
                         <div class="col-6 mb-20">
                             <label class="form-label fw-semibold text-primary-light text-sm mb-8">Email </label>
                             <input type="email" id="email" name="email" class="form-control radius-8"
-                                placeholder="Enter Email "required>
+                                placeholder="Enter Email " required>
                         </div>
 
                         <div class="col-6 mb-20">

@@ -5,6 +5,7 @@ from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
     class DesignationChoices(models.TextChoices):
+        ADMIN = 'admin', 'Admin'
         MANUFACTURE = 'manufacture', 'Manufacture'
         PLANT_OWNER = 'plant_owner', 'Plant Owner'
 
@@ -87,8 +88,8 @@ class Recipemain(models.Model):
         
 class BatchData(models.Model):
     BatchID = models.IntegerField(primary_key=True)
-    stdate = models.DateField()
-    stTime = models.TimeField()
+    stdate = models.CharField(max_length=255)
+    stTime = models.CharField(max_length=255)
     plant_id = models.IntegerField()
     RecipeID = models.IntegerField()
     RecipeName = models.CharField(max_length=255)

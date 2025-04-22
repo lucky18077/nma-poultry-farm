@@ -6,14 +6,28 @@
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
         <h6 class="fw-semibold mb-0">NMA -Poultry Farm</h6>
         <ul class="d-flex align-items-center gap-2">
-            <li class="fw-medium">
-                <a href="index.html" class="d-flex align-items-center gap-1 hover-text-primary">
-                    <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
-                    Dashboard
-                </a>
-            </li>
-            <li>-</li>
-            <li class="fw-medium">NMA -Poultry Farm</li>
+            <form method="POST" action="{% url 'dashboard' %}">
+                {% csrf_token %}
+                <div class="d-flex flex-wrap align-items-center gap-3">
+                    <!-- Dropdown to select plant -->
+                    {% if not is_plant_owner %}
+                    <select name="plant_id" class="form-select form-select-sm w-auto" required>
+                        <option selected disabled>Select Plant</option>
+                        {% for plant in plants %}
+                        <option value="{{ plant.plant_id }}">{{ plant.plant_name }}</option>
+                        {% endfor %}
+                    </select>
+                    {% endif %}
+                    <div>
+                        <input type="date" name="select_date" class="form-control" required>
+                    </div>
+
+                    <!-- Button to submit the form -->
+                    <button type="submit" class="btn btn-sm btn-primary-600">
+                        Submit
+                    </button>
+                </div>
+            </form>
         </ul>
     </div>
 
@@ -171,7 +185,7 @@
             <div class="card h-100">
                 <div class="card-body">
                     <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between">
-                        <h6 class="mb-2 fw-bold text-lg mb-0">Pellet Mill History Mill History</h6>
+                        <h6 class="mb-2 fw-bold text-lg mb-0">Pellet Mill History</h6>
                     </div>
                     <div class="mt-32">
 
@@ -243,7 +257,7 @@
     </div>
 
     <!-- Table Start -->
-    <div class="card radius-16 mt-24">
+    <!-- <div class="card radius-16 mt-24">
         <div class="card-header">
             <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between">
                 <h6 class="mb-2 fw-bold text-lg mb-0">Hammer Mill History</h6>
@@ -289,10 +303,10 @@
                 </table>
             </div>
         </div>
-    </div>
+    </div> -->
     <!-- Table End -->
 
-    <div class="card radius-16 mt-24">
+    <!-- <div class="card radius-16 mt-24">
         <div class="card-header">
             <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between">
                 <h6 class="mb-2 fw-bold text-lg mb-0">Pellet Mill History</h6>
@@ -370,8 +384,9 @@
                 </table>
             </div>
         </div>
-    </div>
+    </div> -->
 
 </div>
 
 {% include "footer.html" %}
+

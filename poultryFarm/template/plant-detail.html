@@ -9,12 +9,12 @@
                 {% csrf_token %}
                 <div class="d-flex flex-wrap align-items-center gap-3">
                     <div>
-                        <label for="form-control">From Date</label>
-                        <input type="date" name="from_datetime" class="form-control" required>
+                        <label for="from_datetime">From DateTime</label>
+                        <input type="date" name="from_datetime" class="form-control" value="{{ request.POST.from_datetime|default:from_datetime }}" required>
                     </div>
                     <div>
-                        <label for="form-control">To Date</label>
-                        <input type="date" name="to_datetime" class="form-control" required>
+                        <label for="to_datetime">To DateTime</label>
+                        <input type="date" name="to_datetime" class="form-control" value="{{ request.POST.to_datetime|default:to_datetime }}" required>
                     </div>
                     <button type="submit" class="btn btn-sm btn-primary-600" style="margin-top: 22px;">
                         Submit
@@ -30,48 +30,24 @@
                 <table class="table bordered-table sm-table mb-0">
                     <thead>
                         <tr>
-                            <th scope="col">Total No Of Recipe</th>
-                            <th scope="col">{{ total_recipes }}</th>
-                            <th scope="col"> </th>
-                            <th scope="col"> </th>
+                            <th scope="col">S No</th>
+                            <th scope="col">Recipe Name</th>
+                            <th scope="col">Batch Count</th>
+                            <th scope="col">Batch Size </th>
+                            <th scope="col">Recipe Start Time </th>
+                            <th scope="col">Recipe End Time </th>
+                            <th scope="col">Total Time(Min) </th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td>{{ recipe_name }}</td>
-                            <td>Start : {{ start_date|date:"d/m/Y" }}</td>
-                            <td>Finish : {{ finish_date|date:"d/m/Y" }}</td>
-                            <td>Pre Start : {{ pre_start_date|date:"d/m/Y" }}</td>
-                        </tr>
-                        <tr>
-                            <td>Batch Count</td>
-                            <td>{{batch_count}}</td>
-                            <td> </td>
-                            <td> </td>
-                        </tr>
-                        <tr>
-                            <td>Batch Size</td>
-                            <td>983.4</td>
-                            <td>984.2</td>
-                            <td>986.7</td>
-                        </tr>
-                        <tr>
-                            <td>Recipe Start Time</td>
-                            <td>00:20:05</td>
-                            <td>00:21:45</td>
-                            <td>03:25:20</td>
-                        </tr>
-                        <tr>
-                            <td>Recipe End Time</td>
-                            <td>00:28:14</td>
-                            <td>02:21:13</td>
-                            <td>06:25:40</td>
-                        </tr>
-                        <tr>
-                            <td>Total Time(Min)</td>
-                            <td>26.1</td>
-                            <td>134.5</td>
-                            <td>180.3</td>
+                            <td>1</td>
+                            <td>TESTRECIPENAME</td>
+                            <td>22</td>
+                            <td>44</td>
+                            <td>Feb. 9, 2025 3:34 p.m.</td>
+                            <td>Feb. 9, 2025  11:59 p.m.</td>
+                            <td>50</td>
                         </tr>
                     </tbody>
                 </table>
@@ -94,7 +70,7 @@
                                     <h6 class="text-md mb-0 fw-medium">Hammer Mill Start Time</h6>
                                 </div>
                             </div>
-                            <span class="text-primary-light text-md fw-medium">00</span>
+                            <span class="text-primary-light text-md fw-medium">{{ hammer_stats.start_time|default:"00" }}</span>
                         </div>
 
                         <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
@@ -104,7 +80,7 @@
                                     <h6 class="text-md mb-0 fw-medium">Hammer Mill End Time</h6>
                                 </div>
                             </div>
-                            <span class="text-primary-light text-md fw-medium">00</span>
+                            <span class="text-primary-light text-md fw-medium">{{ hammer_stats.end_time|default:"00" }}</span>
                         </div>
 
                         <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
@@ -114,7 +90,9 @@
                                     <h6 class="text-md mb-0 fw-medium">Hammer Mill Run Time</h6>
                                 </div>
                             </div>
-                            <span class="text-primary-light text-md fw-medium">00</span>
+                            <span class="text-primary-light text-md fw-medium">
+                                {{ hammer_stats.hammer_count|default:"00" }}
+                            </span>
                         </div>
 
                         <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
@@ -124,7 +102,7 @@
                                     <h6 class="text-md mb-0 fw-medium">Hammer Mill Effective Time</h6>
                                 </div>
                             </div>
-                            <span class="text-primary-light text-md fw-medium">00</span>
+                            <span class="text-primary-light text-md fw-medium">{{ hammer_stats.hammer_avg|floatformat:2|default:"00" }}</span>
                         </div>
 
                         <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
@@ -134,7 +112,7 @@
                                     <h6 class="text-md mb-0 fw-medium">Hammer Efficiency</h6>
                                 </div>
                             </div>
-                            <span class="text-primary-light text-md fw-medium">00</span>
+                            <span class="text-primary-light text-md fw-medium">{{ hammer_stats.hammer_efficiency|floatformat:2|default:"00" }}%</span>
                         </div>
 
                         <div class="d-flex align-items-center justify-content-between gap-3">
@@ -144,7 +122,7 @@
                                     <h6 class="text-md mb-0 fw-medium">Average Load</h6>
                                 </div>
                             </div>
-                            <span class="text-primary-light text-md fw-medium">00</span>
+                            <span class="text-primary-light text-md fw-medium">{{ hammer_stats.avg_load|floatformat:2|default:"00" }}</span>
                         </div>
 
                     </div>
@@ -167,7 +145,7 @@
                                     <h6 class="text-md mb-0 fw-medium">Pellet Mill Start Time</h6>
                                 </div>
                             </div>
-                            <span class="text-primary-light text-md fw-medium">00</span>
+                            <span class="text-primary-light text-md fw-medium">{{ pellet_stats.start_time|default:"00" }}</span>
                         </div>
 
                         <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
@@ -177,7 +155,7 @@
                                     <h6 class="text-md mb-0 fw-medium">Pellet Mill End Time</h6>
                                 </div>
                             </div>
-                            <span class="text-primary-light text-md fw-medium">00</span>
+                            <span class="text-primary-light text-md fw-medium">{{ pellet_stats.end_time|default:"00" }}</span>
                         </div>
 
                         <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
@@ -187,7 +165,7 @@
                                     <h6 class="text-md mb-0 fw-medium">Pellet Mill Run Time</h6>
                                 </div>
                             </div>
-                            <span class="text-primary-light text-md fw-medium">00</span>
+                            <span class="text-primary-light text-md fw-medium">{{ pellet_stats.pellet_count|default:"00" }}</span>
                         </div>
 
                         <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
@@ -197,7 +175,7 @@
                                     <h6 class="text-md mb-0 fw-medium">Pellet Mill Effective Time</h6>
                                 </div>
                             </div>
-                            <span class="text-primary-light text-md fw-medium">00</span>
+                            <span class="text-primary-light text-md fw-medium">{{ pellet_stats.pellet_avg|floatformat:2|default:"00" }}</span>
                         </div>
 
                         <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
@@ -207,7 +185,7 @@
                                     <h6 class="text-md mb-0 fw-medium">Pellet Efficiency</h6>
                                 </div>
                             </div>
-                            <span class="text-primary-light text-md fw-medium">00</span>
+                            <span class="text-primary-light text-md fw-medium">{{ pellet_stats.pellet_efficiency|floatformat:2|default:"00" }}%</span>
                         </div>
 
                         <div class="d-flex align-items-center justify-content-between gap-3">
@@ -217,7 +195,7 @@
                                     <h6 class="text-md mb-0 fw-medium">Average Load</h6>
                                 </div>
                             </div>
-                            <span class="text-primary-light text-md fw-medium">00</span>
+                            <span class="text-primary-light text-md fw-medium">{{ pellet_stats.avg_load|floatformat:2|default:"00" }}</span>
                         </div>
 
                     </div>

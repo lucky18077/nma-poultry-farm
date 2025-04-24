@@ -147,9 +147,9 @@ class BatchData(models.Model):
         db_table = 'batchdata'        
         
 class MotorData(models.Model):
-    sdate = models.DateField()
-    sTime = models.TimeField(primary_key=True)
-    plant_id = models.IntegerField()
+    sdate = models.CharField(max_length=255)
+    sTime = models.CharField(max_length=255)
+    plant_id = models.IntegerField(primary_key=True)
     ScrewRPM = models.FloatField()
     hammercurrent = models.FloatField()
     rvfrpm = models.FloatField()

@@ -118,24 +118,25 @@
 
                         <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
                             <div class="d-flex align-items-center">
-
                                 <div class="flex-grow-1">
                                     <h6 class="text-md mb-0 fw-medium">Hammer Mill Start Time</h6>
                                 </div>
                             </div>
-                            <span class="text-primary-light text-md fw-medium">00</span>
+                            <span class="text-primary-light text-md fw-medium">
+                                {{ hammer_stats.start_time }}
+                            </span>
                         </div>
 
                         <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
                             <div class="d-flex align-items-center">
-
                                 <div class="flex-grow-1">
                                     <h6 class="text-md mb-0 fw-medium">Hammer Mill End Time</h6>
                                 </div>
                             </div>
-                            <span class="text-primary-light text-md fw-medium">00</span>
+                            <span class="text-primary-light text-md fw-medium">
+                                {{ hammer_stats.end_time }}
+                            </span>
                         </div>
-
                         <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
                             <div class="d-flex align-items-center">
 
@@ -143,7 +144,7 @@
                                     <h6 class="text-md mb-0 fw-medium">Hammer Mill Run Time</h6>
                                 </div>
                             </div>
-                            <span class="text-primary-light text-md fw-medium">00</span>
+                            <span class="text-primary-light text-md fw-medium">{{ hammer_stats.hammer_count|default:"00" }}</span>
                         </div>
 
                         <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
@@ -153,34 +154,36 @@
                                     <h6 class="text-md mb-0 fw-medium">Hammer Mill Effective Time</h6>
                                 </div>
                             </div>
-                            <span class="text-primary-light text-md fw-medium">00</span>
+                            <span class="text-primary-light text-md fw-medium">{{ hammer_stats.hammer_avg|floatformat:2|default:"00" }}</span>
                         </div>
 
                         <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
                             <div class="d-flex align-items-center">
-
                                 <div class="flex-grow-1">
                                     <h6 class="text-md mb-0 fw-medium">Hammer Efficiency</h6>
                                 </div>
                             </div>
-                            <span class="text-primary-light text-md fw-medium">00</span>
+                            <span class="text-primary-light text-md fw-medium">
+                                {{ hammer_stats.hammer_efficiency|floatformat:2}}%
+                            </span>
                         </div>
 
-                        <div class="d-flex align-items-center justify-content-between gap-3">
+                        <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
                             <div class="d-flex align-items-center">
-
                                 <div class="flex-grow-1">
                                     <h6 class="text-md mb-0 fw-medium">Average Load</h6>
                                 </div>
                             </div>
-                            <span class="text-primary-light text-md fw-medium">00</span>
+                            <span class="text-primary-light text-md fw-medium">
+                                {{ hammer_stats.avg_load|floatformat:2 }}
+                            </span>
                         </div>
 
                     </div>
-
                 </div>
             </div>
         </div>
+
         <div class="col-xxl-6 col-xl-12">
             <div class="card h-100">
                 <div class="card-body">
@@ -191,24 +194,25 @@
 
                         <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
                             <div class="d-flex align-items-center">
-
                                 <div class="flex-grow-1">
                                     <h6 class="text-md mb-0 fw-medium">Pellet Mill Start Time</h6>
                                 </div>
                             </div>
-                            <span class="text-primary-light text-md fw-medium">00</span>
+                            <span class="text-primary-light text-md fw-medium">
+                                {{ pellet_stats.start_time }}
+                            </span>
                         </div>
 
                         <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
                             <div class="d-flex align-items-center">
-
                                 <div class="flex-grow-1">
                                     <h6 class="text-md mb-0 fw-medium">Pellet Mill End Time</h6>
                                 </div>
                             </div>
-                            <span class="text-primary-light text-md fw-medium">00</span>
+                            <span class="text-primary-light text-md fw-medium">
+                                {{ pellet_stats.end_time }}
+                            </span>
                         </div>
-
                         <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
                             <div class="d-flex align-items-center">
 
@@ -216,7 +220,7 @@
                                     <h6 class="text-md mb-0 fw-medium">Pellet Mill Run Time</h6>
                                 </div>
                             </div>
-                            <span class="text-primary-light text-md fw-medium">00</span>
+                            <span class="text-primary-light text-md fw-medium">{{ pellet_stats.pellet_count|default:"00" }}</span>
                         </div>
 
                         <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
@@ -226,35 +230,37 @@
                                     <h6 class="text-md mb-0 fw-medium">Pellet Mill Effective Time</h6>
                                 </div>
                             </div>
-                            <span class="text-primary-light text-md fw-medium">00</span>
+                            <span class="text-primary-light text-md fw-medium">{{ pellet_stats.pellet_avg|floatformat:2|default:"00" }}</span>
                         </div>
 
                         <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
                             <div class="d-flex align-items-center">
-
                                 <div class="flex-grow-1">
                                     <h6 class="text-md mb-0 fw-medium">Pellet Efficiency</h6>
                                 </div>
                             </div>
-                            <span class="text-primary-light text-md fw-medium">00</span>
+                            <span class="text-primary-light text-md fw-medium">
+                                {{ pellet_stats.pellet_efficiency|floatformat:2 }}%
+                            </span>
                         </div>
 
-                        <div class="d-flex align-items-center justify-content-between gap-3">
+                        <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
                             <div class="d-flex align-items-center">
-
                                 <div class="flex-grow-1">
                                     <h6 class="text-md mb-0 fw-medium">Average Load</h6>
                                 </div>
                             </div>
-                            <span class="text-primary-light text-md fw-medium">00</span>
+                            <span class="text-primary-light text-md fw-medium">
+                                {{ pellet_stats.avg_load|floatformat:2 }}
+                            </span>
                         </div>
 
                     </div>
-
                 </div>
             </div>
         </div>
     </div>
+
 
     <!-- Table Start -->
     <!-- <div class="card radius-16 mt-24">
@@ -389,4 +395,3 @@
 </div>
 
 {% include "footer.html" %}
-

@@ -95,7 +95,7 @@ class BatchData(models.Model):
     RecipeName = models.CharField(max_length=255)
     BatchNum = models.IntegerField()
     TotalBatchNum = models.IntegerField()
-    endTime = models.TimeField()
+    endTime = models.CharField(max_length=255)
 
     # Bins
     Bin1Act = models.FloatField()

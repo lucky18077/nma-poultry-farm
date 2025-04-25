@@ -3,11 +3,12 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from .models import Plant,BatchData,MotorData
+from .models import Plant,BatchData,MotorData,Recipemain
 from datetime import datetime, timedelta
 import random
 from django.shortcuts import render, get_object_or_404
-from django.db.models import Avg, Min, Max,Count
+from django.db.models import Avg, Min, Max,Count,F, ExpressionWrapper, FloatField,OuterRef, Subquery
+from django.db.models.functions import Cast
 from django.contrib.auth import get_user_model
 from django.utils.timezone import make_aware
 from django.utils.dateparse import parse_datetime
@@ -34,9 +35,9 @@ def index(request):
                     iterable = [u.id for u in users]
 
                 request.session['child_ids'] = child_ids 
-                print("Logged-in User ID:", user.id)
-                print("All Child User IDs:", child_ids) 
-                return redirect('dashboard')
+                # print("Logged-in User ID:", user.id)
+                # print("All Child User IDs:", child_ids) 
+                return redirect('plant_view')
             else:
                 messages.error(request, 'Invalid username or password')
         except User.DoesNotExist:
@@ -224,7 +225,25 @@ def dashboard(request):
             batchno = batch.BatchNum if batch else None
             totalBatch = batch.TotalBatchNum if batch else None
             recipename = batch.RecipeName if batch else None
-            motor_data = MotorData.objects.filter(plant_id=plant_id).order_by('-sdate').first()
+            motor_data = MotorData.objects.filter(plant_id=plant_id).order_by('-sTime')  
+            hammer_stats = motor_data.filter(rvfrpm__gt=0).aggregate(
+                hammer_avg=Avg('rvfrpm'),
+                hammer_count=Count('rvfrpm'),
+                hammer_efficiency=Avg('rvfrpm') * 100 / 1800,
+                avg_load=Avg('hammercurrent'),
+                start_time=Min('sTime'),
+                end_time=Max('sTime')
+            )
+            # print(hammer_stats)
+            # Calculate pellet mill statistics
+            pellet_stats = motor_data.filter(feederRPM__gt=0).aggregate(
+                pellet_avg=Avg('feederRPM'),
+                pellet_count=Count('feederRPM'),
+                pellet_efficiency=Avg('feederRPM') * 100 / 1500,
+                avg_load=Avg('pelletcurrent'),
+                start_time=Min('sTime'),
+                end_time=Max('sTime')
+            )
 
     return render(request, 'dashboard.html', {
         'recipename': recipename,
@@ -270,14 +289,15 @@ def parse_datetime(sdate, stime):
     except:
         return None
 
+
 @login_required
 def plant_detail(request, plant_id):
     plant = get_object_or_404(Plant, plant_id=plant_id)
     from_date = to_date = None
-    filtered_data = BatchData.objects.none()
-    total_recipes = batch_count = recipe_name = None
+    batch_data = BatchData.objects.none()
     start_date = finish_date = None
     from_date_str = to_date_str = None
+    unique_recipe_data=None
     hammer_stats = pellet_stats = {}
 
     if request.method == 'POST':
@@ -297,15 +317,57 @@ def plant_detail(request, plant_id):
             for i in range((to_date - from_date).days + 1)
         ]
 
-        # Filter batch data
-        filtered_data = BatchData.objects.filter(
+        batch_data = BatchData.objects.filter(
             plant_id=plant_id,
             stdate__range=[from_date, to_date]
-        ).order_by('stTime')
-
-        total_recipes = batch_count = filtered_data.count()
-        recipe_name = filtered_data.first().RecipeName if filtered_data.exists() else None
-
+        )
+        recipe_weight_expr = ExpressionWrapper(
+            F('Bin1SetWt') + F('Bin2SetWt') + F('Bin3SetWt') +
+            F('Bin4SetWt') + F('Bin5SetWt') + F('Bin6SetWt') +
+            F('Bin7SetWt') + F('Bin8SetWt') + F('Bin9SetWt') +
+            F('Bin10SetWt') + F('Bin11SetWt') + F('Bin12SetWt') +
+            F('Bin13SetWt') + F('Bin14SetWt') + F('Bin15SetWt') + F('Bin16SetWt') +
+            F('Oil1SetWt') + F('Oil2SetWt') + F('MedSetWt')+
+            F('MolassesSetWt') + F('Premix1Set') + F('Premix2Set')+
+            F('Man1SetWt') + F('Man2SetWt') + F('Man3SetWt') +
+            F('Man4SetWt') + F('Man5SetWt') + F('Man6SetWt') +
+            F('Man7SetWt') + F('Man8SetWt') + F('Man9SetWt') +
+            F('Man10SetWt') + F('Man11SetWt') + F('Man12SetWt'),
+            output_field=FloatField()
+        )
+        recipe_subquery = Recipemain.objects.filter(RecipeID=OuterRef('RecipeID')).annotate(
+            total_weight=recipe_weight_expr
+        ).values('total_weight')[:1]
+        # Use annotate to get the first and last RecipeName per RecipeID
+        unique_recipe_data = batch_data.values('RecipeID') \
+            .annotate(
+                First_RecipeName=Min('RecipeName'),  
+                Last_RecipeName=Max('RecipeName'),
+                batch_count=Count('RecipeID'), 
+                start_time=Min('stTime'),
+                end_time=Min('endTime'),
+                total_recipe_weight=Subquery(recipe_subquery)
+            ).order_by('RecipeID')
+            
+                 
+        for item in unique_recipe_data:
+            st_time = item['start_time']
+            end_time = item['end_time'] 
+            if isinstance(st_time, str):
+                st_time = datetime.strptime(st_time, '%H:%M:%S')
+            if isinstance(end_time, str):
+                end_time = datetime.strptime(end_time, '%H:%M:%S') 
+            if st_time and end_time: 
+                time_diff = end_time - st_time 
+                if time_diff.total_seconds() < 0:
+                    time_diff += timedelta(days=1)
+                total_seconds = int(time_diff.total_seconds())
+                hours = total_seconds // 3600
+                minutes = (total_seconds % 3600) // 60
+                seconds = total_seconds % 60
+                item['total_time'] = f'{hours:02}:{minutes:02}:{seconds:02}'
+            else:
+                item['total_time'] = '00:00:00'   
         # Raw motor data
         motor_data_raw = MotorData.objects.filter(
             plant_id=plant_id,
@@ -360,10 +422,7 @@ def plant_detail(request, plant_id):
 
     return render(request, 'plant-detail.html', {
         'plant': plant,
-        'filtered_data': filtered_data,
-        'total_recipes': total_recipes,
-        'recipe_name': recipe_name,
-        'batch_count': batch_count,
+        'unique_recipe_data': unique_recipe_data,
         'start_date': start_date,
         'finish_date': finish_date,
         'hammer_stats': hammer_stats,

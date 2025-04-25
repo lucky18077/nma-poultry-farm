@@ -36,18 +36,22 @@
                             <th scope="col">Batch Size </th>
                             <th scope="col">Recipe Start Time </th>
                             <th scope="col">Recipe End Time </th>
-                            <th scope="col">Total Time(Min) </th>
+                            <th scope="col">Total Time </th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td>1</td>
-                            <td>TESTRECIPENAME</td>
-                            <td>22</td>
-                            <td>44</td>
-                            <td>Feb. 9, 2025 3:34 p.m.</td>
-                            <td>Feb. 9, 2025  11:59 p.m.</td>
-                            <td>50</td>
+                            {% for item in unique_recipe_data  %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ item.Last_RecipeName }}</td>
+                                    <td>{{ item.batch_count }}</td>
+                                    <td>{{ item.total_recipe_weight }}</td>
+                                    <td> {{ item.start_time }}</td>
+                                    <td>{{ item.end_time }} </td>
+                                    <td>{{ item.total_time }}</td>
+                                </tr>
+                                {% endfor %}
                         </tr>
                     </tbody>
                 </table>

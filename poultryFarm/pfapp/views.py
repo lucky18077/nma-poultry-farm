@@ -17,7 +17,7 @@ from django.utils.dateparse import parse_datetime
 from django.db.models import Q
 User = get_user_model()
 
-# Create your views here.
+# Login views.
 def index(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -48,24 +48,29 @@ def index(request):
 
     return render(request, 'login.html')
 
+# Contact views.
 def contact(request):
     return render(request,'contact.html')
 
+# Profile views.
 @login_required
 def profile(request):
     return render(request, 'profile.html', {'user': request.user})
 
+# Logout views.
 def logout_view(request):
     logout(request)   
     messages.success(request, 'You have been logged out successfully.')   
     return redirect('index')
 
+# Users List views.
 @login_required
 def usersList(request):
     users = User.objects.filter(is_superuser=False)
     managers = User.objects.filter(designation='manufacture')
     return render(request, 'users.html', {'users': users, 'managers': managers})
 
+# Login Save views.
 @login_required
 def save_user(request):
     if request.method == "POST":
@@ -98,13 +103,15 @@ def save_user(request):
                 # reporting_manager=admin_user
             )
         return redirect('users')
-    
+
+# Plant List views.    
 @login_required
 def plantList(request):
     plants = Plant.objects.all()
     managers = User.objects.filter(designation='plant_owner')
     return render(request, 'plant-list.html', {'plants': plants,'managers':managers})
 
+# Plant CRUD views.
 @login_required
 def save_plant(request):
     if request.method == "POST":
@@ -165,7 +172,8 @@ def safe_round(value, ndigits=2):
         return round(value, ndigits)
     except (TypeError, ValueError):
         return None
-    
+ 
+# Dashboard views.    
 @login_required
 def dashboard(request):
     batch = None

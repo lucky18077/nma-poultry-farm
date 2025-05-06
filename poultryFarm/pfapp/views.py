@@ -3,15 +3,18 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from .models import Plant,BatchData,MotorData,Recipemain
+from .models import Plant,BatchData,MotorData,Recipemain,BinName,MaterialName
+# from datetime import datetime, timedelta,time
+from datetime import datetime as dt, time, timedelta
 from datetime import datetime, timedelta
 import random
 from django.shortcuts import render, get_object_or_404
-from django.db.models import Avg, Min, Max,Count,F, ExpressionWrapper, FloatField,OuterRef, Subquery
+from django.db.models import Avg, Min, Max,Count,F, ExpressionWrapper, FloatField,OuterRef, Subquery,Sum
 from django.db.models.functions import Cast
 from django.contrib.auth import get_user_model
 from django.utils.timezone import make_aware
 from django.utils.dateparse import parse_datetime
+from django.db.models import Q
 User = get_user_model()
 
 # Create your views here.
@@ -57,7 +60,6 @@ def logout_view(request):
     messages.success(request, 'You have been logged out successfully.')   
     return redirect('index')
 
- 
 @login_required
 def usersList(request):
     users = User.objects.filter(is_superuser=False)
@@ -109,33 +111,50 @@ def save_plant(request):
         plant_id = request.POST.get('id')
         plant_name = request.POST.get('plant_name')
         plant_owner_id = request.POST.get('plant_owner_id')
+        shiftA_start_str = request.POST.get('shiftA')
 
-        # Validation: check if plant_name is empty
-        if not plant_name or plant_owner_id.strip() == "":
+        # Validation
+        if not plant_owner_id or plant_owner_id.strip() == "":
             messages.error(request, "Plant Owner is required.")
+            return redirect('plantList')
         if not plant_name or plant_name.strip() == "":
             messages.error(request, "Plant name is required.")
             return redirect('plantList')
-        if plant_id:  
+
+        try:
+            shiftA_start = datetime.strptime(shiftA_start_str, '%H:%M')
+        except ValueError:
+            messages.error(request, "Invalid time format for shiftA.")
+            return redirect('plantList')
+
+        shiftB_start = shiftA_start + timedelta(hours=8)
+        shiftC_start = shiftB_start + timedelta(hours=8)
+
+        if plant_id:
             plant = Plant.objects.get(id=plant_id)
             plant.plant_name = plant_name
             plant.plant_owner_id = plant_owner_id
+            plant.shiftA = shiftA_start.time()
+            plant.shiftB = shiftB_start.time()
+            plant.shiftC = shiftC_start.time()
             plant.save()
-        else:  
+        else:
             # Generate unique plant_id
             while True:
-                now = datetime.now().strftime("%H%M%S")  # current timestamp
-                random_number = random.randint(1000, 9999)     # random 4-digit number
+                now = datetime.now().strftime("%H%M%S")
+                random_number = random.randint(1000, 9999)
                 generated_plant_id = f"{now}{random_number}"
 
                 if not Plant.objects.filter(plant_id=generated_plant_id).exists():
-                    break  # Unique ID found
+                    break
 
-            # Save new plant
             Plant.objects.create(
                 plant_id=generated_plant_id,
                 plant_name=plant_name,
-                plant_owner_id=plant_owner_id
+                plant_owner_id=plant_owner_id,
+                shiftA=shiftA_start.time(),
+                shiftB=shiftB_start.time(),
+                shiftC=shiftC_start.time()
             )
 
         messages.success(request, "Plant saved successfully!")
@@ -146,6 +165,7 @@ def safe_round(value, ndigits=2):
         return round(value, ndigits)
     except (TypeError, ValueError):
         return None
+    
 @login_required
 def dashboard(request):
     batch = None
@@ -258,7 +278,6 @@ def dashboard(request):
         'is_plant_owner': request.user.designation == 'plant_owner',
     })
     
-    
 @login_required
 def plant_view(request): 
     plants = [] 
@@ -275,7 +294,6 @@ def plant_view(request):
 
     return render(request, 'plant-view.html', {'plants': plants})
 
-# Dummy fallback safe_round
 def safe_round(value, digits=2):
     try:
         return round(value, digits)
@@ -288,7 +306,6 @@ def parse_datetime(sdate, stime):
         return make_aware(datetime.strptime(f"{sdate} {stime}", "%Y-%m-%d %H:%M:%S"))
     except:
         return None
-
 
 @login_required
 def plant_detail(request, plant_id):
@@ -431,3 +448,438 @@ def plant_detail(request, plant_id):
         'to_datetime': to_date_str,
     })
  
+@login_required
+def batch_shift(request):
+    plants = []
+    start_date=None
+    end_date=None
+    batch_data = []
+    recipe_ids = []
+    batch_counts = []
+    materialName = MaterialName.objects.all()
+    plant_id = None
+    shift=None
+
+   # Get plants based on user role
+    if request.user.is_superuser:
+        plants = Plant.objects.all()
+    elif request.user.designation == 'manufacture':
+        child_ids = request.session.get('child_ids', [])
+        plants = Plant.objects.filter(plant_owner_id__in=child_ids)
+    elif request.user.designation == 'plant_owner':
+        plant = Plant.objects.filter(plant_owner_id=request.user.id).first()
+        if plant:
+            plant_id = plant.plant_id
+            plants = [plant]
+    if request.method == "POST":
+        start_date = request.POST.get('start_date')
+        end_date = request.POST.get('end_date')
+        shift = request.POST.get('shift')
+        plant_id = request.POST.get('plant_id')
+
+        try:
+            if plant_id and shift:
+                filter_kwargs = {
+                    'plant_id': plant_id,
+                    f'{shift}__isnull': False,
+                }
+                shift_data_qs = Plant.objects.filter(**filter_kwargs) 
+
+                if shift_data_qs.exists():
+                    plant = shift_data_qs.first()
+                    shift_start_time = getattr(plant, shift)  
+                    shift_start_dt = datetime.combine(datetime.today(), shift_start_time)
+                    shift_end_dt = shift_start_dt + timedelta(hours=8)
+
+                     
+                    shift_start_str = shift_start_dt.strftime("%H:%M:%S")
+                    shift_end_str = shift_end_dt.strftime("%H:%M:%S")
+
+                     
+                    batch_data = BatchData.objects.filter(
+                        plant_id=plant_id,
+                        stTime__range=(shift_start_str, shift_end_str)
+                    )
+
+            recipe_ids = batch_data.values_list('RecipeID', flat=True).distinct()
+
+            # Get set weights from Recipemain
+            setWT = Recipemain.objects.filter(RecipeID__in=recipe_ids).annotate(
+                total_soya=Sum(
+                    F('Bin1SetWt') + F('Bin2SetWt') + F('Bin3SetWt') + F('Bin4SetWt') +
+                    F('Bin5SetWt') + F('Bin6SetWt') + F('Bin7SetWt') + F('Bin8SetWt') +
+                    F('Bin9SetWt') + F('Bin10SetWt') + F('Bin11SetWt') + F('Bin12SetWt') +
+                    F('Bin13SetWt') + F('Bin14SetWt') + F('Bin15SetWt') + F('Bin16SetWt')
+                ),
+                total_ddgs=Sum(
+                    F('Man1SetWt') + F('Man2SetWt') + F('Man3SetWt') + F('Man4SetWt') +
+                    F('Man5SetWt') + F('Man6SetWt') + F('Man7SetWt') + F('Man8SetWt') +
+                    F('Man9SetWt') + F('Man10SetWt') + F('Man11SetWt') + F('Man12SetWt') +
+                    F('Man13SetWt') + F('Man14SetWt') + F('Man15SetWt') + F('Man16SetWt')
+                ),
+                total_maize=F('Oil1SetWt'),
+                total_mbm=F('Oil2SetWt'),
+                total_mdoc=F('Premix1Set'),
+                total_oil1=F('Premix2Set'),
+            )
+
+            # Build final batch_counts structure for the template
+            batch_counts = []
+            for rec in setWT:
+                related_batches = batch_data.filter(RecipeID=rec.RecipeID)
+                per_batch_data = []
+
+                for b in related_batches:
+                    per_batch_data.append({
+                        'BatchNum': b.BatchNum,
+                        'stTime': b.stTime,
+                        'total_soya': (
+                            b.Bin1Act + b.Bin2Act + b.Bin3Act + b.Bin4Act +
+                            b.Bin5Act + b.Bin6Act + b.Bin7Act + b.Bin8Act +
+                            b.Bin9Act + b.Bin10Act + b.Bin11Act + b.Bin12Act +
+                            b.Bin13Act + b.Bin14Act + b.Bin15Act + b.Bin16Act
+                        ),
+                        'total_ddgs': (
+                            b.ManWt1 + b.ManWt2 + b.ManWt3 + b.ManWt4 +
+                            b.ManWt5 + b.ManWt6 + b.ManWt7 + b.ManWt8 +
+                            b.ManWt9 + b.ManWt10 + b.ManWt11 + b.ManWt12 +
+                            b.ManWt13 + b.ManWt14 + b.ManWt15 + b.ManWt16
+                        ),
+                        'Oil1SetWt': b.Oil1Act,
+                        'Oil2SetWt': b.Oil2Act,
+                        'Premix1Set': b.PremixWt1,
+                        'Premix2Set': b.PremixWt2
+                    })
+
+                batch_counts.append({
+                    'RecipeID': rec.RecipeID,
+                    'count': related_batches.count(),
+                    'total_soya': rec.total_soya,
+                    'total_ddgs': rec.total_ddgs,
+                    'Oil1SetWt': rec.total_maize,
+                    'Oil2SetWt': rec.total_mbm,
+                    'Premix1Set': rec.total_mdoc,
+                    'Premix2Set': rec.total_oil1,
+                    'actual_data': per_batch_data
+                })
+
+        except Exception as e:
+            print("Error:", e)
+
+    return render(request, 'batch-shift-report.html', {
+        'plants': plants,
+        'batch_data': batch_data,
+        'recipe_ids': recipe_ids,
+        'batch_counts': batch_counts,
+        'materialName': materialName,
+        'start_date':start_date,
+        'end_date':end_date,
+        'shift':shift,
+        'is_plant_owner': request.user.designation == 'plant_owner',
+    })
+
+
+@login_required
+def recipe_shift(request):
+    plants = []
+    recipe_ids = []
+    batch_data = []
+    batch_actual = []
+    plant_id = None
+    start_date=None
+    end_date=None
+    shift=None
+
+    # Get plants based on user role
+    if request.user.is_superuser:
+        plants = Plant.objects.all()
+    elif request.user.designation == 'manufacture':
+        child_ids = request.session.get('child_ids', [])
+        plants = Plant.objects.filter(plant_owner_id__in=child_ids)
+    elif request.user.designation == 'plant_owner':
+        plant = Plant.objects.filter(plant_owner_id=request.user.id).first()
+        if plant:
+            plant_id = plant.plant_id
+            plants = [plant]
+    if request.method == "POST":
+        start_date = request.POST.get('start_date')
+        end_date = request.POST.get('end_date')
+        shift = request.POST.get('shift')
+        plant_id = request.POST.get('plant_id')
+
+        try:
+            if plant_id and shift:
+                filter_kwargs = {
+                    'plant_id': plant_id,
+                    f'{shift}__isnull': False,
+                }
+                shift_data_qs = Plant.objects.filter(**filter_kwargs) 
+
+                if shift_data_qs.exists():
+                    plant = shift_data_qs.first()
+                    shift_start_time = getattr(plant, shift)  
+                    shift_start_dt = datetime.combine(datetime.today(), shift_start_time)
+                    shift_end_dt = shift_start_dt + timedelta(hours=8)
+
+                     
+                    shift_start_str = shift_start_dt.strftime("%H:%M:%S")
+                    shift_end_str = shift_end_dt.strftime("%H:%M:%S")
+
+                     
+                    batch_data = BatchData.objects.filter(
+                        plant_id=plant_id,
+                        stTime__range=(shift_start_str, shift_end_str)
+                    )
+
+                recipe_ids = batch_data.values_list('RecipeID', flat=True).distinct()
+                recipe_data_dict = {
+                    recipe.RecipeID: recipe for recipe in Recipemain.objects.filter(RecipeID__in=recipe_ids)
+                }
+
+                for item in batch_data:
+                    # Calculate actuals
+                    soya_fields = [getattr(item, f'Bin{i}Act') or 0 for i in range(1, 17)]
+                    ddgs_fields = [getattr(item, f'ManWt{i}') or 0 for i in range(1, 17)]
+                    total_soya = sum(soya_fields)
+                    total_ddgs = sum(ddgs_fields)
+                    total_maize = item.Oil1Act or 0
+                    total_mbm = item.Oil2Act or 0
+                    total_mdoc = item.PremixWt1 or 0
+                    total_oil = item.PremixWt2 or 0
+
+                    # Get set wt for this recipe
+                    recipe = recipe_data_dict.get(item.RecipeID)
+                    if recipe:
+                        set_soya_fields = [getattr(recipe, f'Bin{i}SetWt') or 0 for i in range(1, 17)]
+                        set_ddgs_fields = [getattr(recipe, f'Man{i}SetWt') or 0 for i in range(1, 21)]
+                        set_total_soya = sum(set_soya_fields)
+                        set_total_ddgs = sum(set_ddgs_fields)
+                        set_total_maize = recipe.Oil1SetWt or 0
+                        set_total_mbm = recipe.Oil2SetWt or 0
+                        set_total_mdoc = recipe.Premix1Set or 0
+                        set_total_oil = recipe.Premix2Set or 0
+
+                        # Compute errors
+                        def calc_error(actual, set_val):
+                            error_kg = round(actual - set_val, 2)
+                            error_pct = round((error_kg / set_val) * 100, 2) if set_val else 0
+                            return error_kg, error_pct
+
+                        item.recipe_name = recipe.recipename
+                        item.set_total_soya = set_total_soya
+                        item.total_soya = total_soya
+                        item.error_soya, item.error_soya_pct = calc_error(total_soya, set_total_soya)
+
+                        item.set_total_ddgs = set_total_ddgs
+                        item.total_ddgs = total_ddgs
+                        item.error_ddgs, item.error_ddgs_pct = calc_error(total_ddgs, set_total_ddgs)
+
+                        item.set_total_maize = set_total_maize
+                        item.total_maize = total_maize
+                        item.error_maize, item.error_maize_pct = calc_error(total_maize, set_total_maize)
+
+                        item.set_total_mbm = set_total_mbm
+                        item.total_mbm = total_mbm
+                        item.error_mbm, item.error_mbm_pct = calc_error(total_mbm, set_total_mbm)
+
+                        item.set_total_mdoc = set_total_mdoc
+                        item.total_mdoc = total_mdoc
+                        item.error_mdoc, item.error_mdoc_pct = calc_error(total_mdoc, set_total_mdoc)
+
+                        item.set_total_oil = set_total_oil
+                        item.total_oil = total_oil
+                        item.error_oil, item.error_oil_pct = calc_error(total_oil, set_total_oil)
+
+                        item.set_total_all = set_total_soya + set_total_ddgs + set_total_maize + set_total_mbm + set_total_mdoc + set_total_oil
+                        item.total_all = total_soya + total_ddgs + total_maize + total_mbm + total_mdoc + total_oil
+                        item.error_total, item.error_total_pct = calc_error(item.total_all, item.set_total_all)
+
+                        batch_actual.append(item)
+                        
+
+        except Exception as e:
+            print("Error:", e)
+
+    return render(request, 'recipe-shift-report.html', {
+        'plants': plants,
+        'recipe_ids': recipe_ids,
+        'batch_actual': batch_actual,
+        'start_date': start_date,
+        'end_date': end_date,
+        'shift':shift,
+        'is_plant_owner': request.user.designation == 'plant_owner',
+    })
+    
+@login_required
+def consumption_shift(request):
+    plants = []
+    start_date=None
+    end_date=None
+    shift=None
+    recipe_ids = []
+    batch_data = []
+    total_soya=0
+    total_ddgs=0
+    total_maize=0
+    total_mbm=0
+    total_mdoc=0
+    total_oil=0
+    set_total_soya=0
+    set_total_ddgs=0
+    set_total_maize=0
+    set_total_mbm=0
+    set_total_mdoc=0
+    set_total_oil=0
+    error_soya=0
+    error_ddgs=0
+    error_maize=0
+    error_mbm=0
+    error_mdoc=0
+    error_oil=0
+    error_soya_pct=0
+    error_ddgs_pct=0
+    error_maize_pct=0
+    error_mbm_pct=0
+    error_mdoc_pct=0
+    error_oil_pct=0
+    set_total_all=0
+    total_all=0
+    error_total=0
+    error_total_pct=0
+    
+    
+    # Get plants based on user role
+    if request.user.is_superuser:
+        plants = Plant.objects.all()
+    elif request.user.designation == 'manufacture':
+        child_ids = request.session.get('child_ids', [])
+        plants = Plant.objects.filter(plant_owner_id__in=child_ids)
+    elif request.user.designation == 'plant_owner':
+        plant = Plant.objects.filter(plant_owner_id=request.user.id).first()
+        if plant:
+            plant_id = plant.plant_id
+            plants = [plant]
+    if request.method == "POST":
+        start_date = request.POST.get('start_date')
+        end_date = request.POST.get('end_date')
+        shift = request.POST.get('shift')
+        plant_id = request.POST.get('plant_id')
+        try:
+            if plant_id and shift:
+                filter_kwargs = {
+                    'plant_id': plant_id,
+                    f'{shift}__isnull': False,
+                }
+                shift_data_qs = Plant.objects.filter(**filter_kwargs) 
+
+                if shift_data_qs.exists():
+                    plant = shift_data_qs.first()
+                    shift_start_time = getattr(plant, shift)  
+                    shift_start_dt = datetime.combine(datetime.today(), shift_start_time)
+                    shift_end_dt = shift_start_dt + timedelta(hours=8)
+
+                     
+                    shift_start_str = shift_start_dt.strftime("%H:%M:%S")
+                    shift_end_str = shift_end_dt.strftime("%H:%M:%S")
+
+                     
+                    batch_data = BatchData.objects.filter(
+                        plant_id=plant_id,
+                        stTime__range=(shift_start_str, shift_end_str)
+                    )
+                    recipe_ids = batch_data.values_list('RecipeID', flat=True).distinct()
+                    recipe_data_dict = {
+                        recipe.RecipeID: recipe for recipe in Recipemain.objects.filter(RecipeID__in=recipe_ids)
+                    }
+                for item in batch_data:
+                    # Calculate actuals
+                    soya_fields = [getattr(item, f'Bin{i}Act') or 0 for i in range(1, 17)]
+                    ddgs_fields = [getattr(item, f'ManWt{i}') or 0 for i in range(1, 17)]
+                    total_soya += sum(soya_fields)
+                    total_ddgs += sum(ddgs_fields)
+                    total_maize += item.Oil1Act or 0
+                    total_mbm += item.Oil2Act or 0
+                    total_mdoc += item.PremixWt1 or 0
+                    total_oil += item.PremixWt2 or 0
+
+                    # Get set wt for this recipe
+                    recipe = recipe_data_dict.get(item.RecipeID)
+                    if recipe:
+                        set_soya_fields = [getattr(recipe, f'Bin{i}SetWt') or 0 for i in range(1, 17)]
+                        set_ddgs_fields = [getattr(recipe, f'Man{i}SetWt') or 0 for i in range(1, 21)]
+                        set_total_soya += sum(set_soya_fields)
+                        set_total_ddgs += sum(set_ddgs_fields)
+                        set_total_maize += recipe.Oil1SetWt or 0
+                        set_total_mbm += recipe.Oil2SetWt or 0
+                        set_total_mdoc += recipe.Premix1Set or 0
+                        set_total_oil += recipe.Premix2Set or 0
+                    
+                    # Error Calculations (kg)
+                    error_soya = total_soya - set_total_soya
+                    error_ddgs = total_ddgs - set_total_ddgs
+                    error_maize = total_maize - set_total_maize
+                    error_mbm = total_mbm - set_total_mbm
+                    error_mdoc = total_mdoc - set_total_mdoc
+                    error_oil = total_oil - set_total_oil
+
+                    # Error Percentage Calculations
+                    def calc_error_pct(actual, expected):
+                        return ((actual - expected) / expected * 100) if expected != 0 else 0
+
+                    error_soya_pct = calc_error_pct(total_soya, set_total_soya)
+                    error_ddgs_pct = calc_error_pct(total_ddgs, set_total_ddgs)
+                    error_maize_pct = calc_error_pct(total_maize, set_total_maize)
+                    error_mbm_pct = calc_error_pct(total_mbm, set_total_mbm)
+                    error_mdoc_pct = calc_error_pct(total_mdoc, set_total_mdoc)
+                    error_oil_pct = calc_error_pct(total_oil, set_total_oil)
+
+                    # Totals
+                    set_total_all = set_total_soya + set_total_ddgs + set_total_maize + set_total_mbm + set_total_mdoc + set_total_oil
+                    total_all = total_soya + total_ddgs + total_maize + total_mbm + total_mdoc + total_oil
+                    error_total = total_all - set_total_all
+                    error_total_pct = calc_error_pct(total_all, set_total_all)    
+        except Exception as e:
+            print("Error:", e)
+    return render(request,'consumption-shift-report.html', {
+        'plants': plants,
+        'batch_data': batch_data,
+        'start_date': start_date,
+        'end_date': end_date,
+        'shift':shift,
+        'total_soya':total_soya,
+        'total_ddgs':total_ddgs,
+        'total_maize':total_maize,
+        'total_mbm':total_mbm,
+        'total_mdoc':total_mdoc,
+        'total_oil':total_oil,
+        'set_total_soya':set_total_soya,
+        'set_total_ddgs':set_total_ddgs,
+        'set_total_maize':set_total_maize,
+        'set_total_mbm':set_total_mbm,
+        'set_total_mdoc':set_total_mdoc,
+        'set_total_oil':set_total_oil,
+        'error_soya': error_soya,
+        'error_ddgs': error_ddgs,
+        'error_maize': error_maize,
+        'error_mbm': error_mbm,
+        'error_mdoc': error_mdoc,
+        'error_oil': error_oil,
+        'error_soya_pct': error_soya_pct,
+        'error_ddgs_pct': error_ddgs_pct,
+        'error_maize_pct': error_maize_pct,
+        'error_mbm_pct': error_mbm_pct,
+        'error_mdoc_pct': error_mdoc_pct,
+        'error_oil_pct': error_oil_pct,
+        'set_total_all': set_total_all,
+        'total_all': total_all,
+        'error_total': error_total,
+        'error_total_pct': error_total_pct,
+        'is_plant_owner': request.user.designation == 'plant_owner',    
+    })
+    
+ 
+  
+    
+ 
+    
+        

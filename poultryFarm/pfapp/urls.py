@@ -13,6 +13,9 @@ urlpatterns = [
     path('save-plant', views.save_plant, name='save_plant'),
     path('dashboard', views.plant_view, name='plant_view'),
     path('plants-detail/<int:plant_id>/', views.plant_detail, name='plant_detail'),
+    path('batch-shift-report', views.batch_shift, name='batch_shift'),
+    path('recipe-shift-report', views.recipe_shift, name='recipe_shift'),
+    path('consumption-shift-report', views.consumption_shift, name='consumption_shift'),
 
 ]
 

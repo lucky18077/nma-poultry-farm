@@ -27,6 +27,9 @@
                         <th scope="col">Plant id</th>
                         <th scope="col">Plant Owner</th>
                         <th scope="col">Palnt Name</th>
+                        <th scope="col">Shift A</th>
+                        <th scope="col">Shift B</th>
+                        <th scope="col">Shift C</th>
                         <th scope="col">Action</th>
                     </tr>
                 </thead>
@@ -37,11 +40,14 @@
                         <td>{{ plant.plant_id }}</td>
                         <td>{{ plant.plant_owner.username }}</td>
                         <td>{{ plant.plant_name }}</td>
+                        <td>{{ plant.shiftA }}</td>
+                        <td>{{ plant.shiftB }}</td>
+                        <td>{{ plant.shiftC }}</td>
                         <td>
                             <button
                                 class="w-32-px h-32-px bg-warning-focus text-warning-main rounded-circle d-inline-flex align-items-center justify-content-center edit-plant"
                                 data-id="{{ plant.id }}" data-plant_name="{{ plant.plant_name }}"
-                                data-plant_owner_id="{{ plant.plant_owner_id }}">
+                                data-plant_owner_id="{{ plant.plant_owner_id }}" data-shiftA="{{ plant.shiftA }}">
                                 <iconify-icon icon="lucide:edit"></iconify-icon>
                             </button>
                         </td>
@@ -73,7 +79,8 @@
                         <div class="col-6 mb-20">
                             <label class="form-label fw-semibold text-primary-light text-sm mb-8">Plant Owner
                             </label>
-                            <select id="plant_owner_id" name="plant_owner_id" class="form-control radius-8 form-select" required>
+                            <select id="plant_owner_id" name="plant_owner_id" class="form-control radius-8 form-select"
+                                required>
                                 <option value="" disabled selected>Select Manager</option>
                                 {% for manager in managers %}
                                 <option value="{{ manager.id }}">{{ manager.username }}</option>
@@ -84,6 +91,12 @@
                             <label class="form-label fw-semibold text-primary-light text-sm mb-8">Plant Name </label>
                             <input type="text" id="plant_name" name="plant_name" class="form-control radius-8"
                                 placeholder="Enter Plant Name " required>
+                        </div>
+                        <div class="col-6 mb-20">
+                            <label class="form-label fw-semibold text-primary-light text-sm mb-8">Shift Start
+                                Time</label>
+                            <input type="time" id="shiftA" name="shiftA" class="form-control radius-8"
+                                placeholder="Enter Shift Start Time" required>
                         </div>
 
                         <div class="d-flex align-items-center justify-content-center gap-3 mt-24">
@@ -105,6 +118,7 @@
     $(document).on("click", ".edit-plant", function () {
         $("#id").val($(this).data('id'));
         $("#plant_name").val($(this).data('plant_name'));
+        $("#shiftA").val($(this).data('shiftA'));
         $("#plant_owner_id").val($(this).data('plant_owner_id'));
         $(".btnname").text('Edit Plant');
         $("#plantModal").modal('show');
@@ -114,6 +128,7 @@
         $("#id").val("");
         $("#plant_name").val("");
         $("#plant_owner_id").val("");
+        $("#shiftA").val("");
         $(".btnname").html('Add Plant');
         $("#plantModal").modal('show');
     });

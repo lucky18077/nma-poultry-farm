@@ -720,43 +720,28 @@ def recipe_shift(request):
     
 @login_required
 def consumption_shift(request):
+    # Initialize all required variables
     plants = []
-    start_date=None
-    end_date=None
-    shift=None
-    recipe_ids = []
     batch_data = []
-    total_soya=0
-    total_ddgs=0
-    total_maize=0
-    total_mbm=0
-    total_mdoc=0
-    total_oil=0
-    set_total_soya=0
-    set_total_ddgs=0
-    set_total_maize=0
-    set_total_mbm=0
-    set_total_mdoc=0
-    set_total_oil=0
-    error_soya=0
-    error_ddgs=0
-    error_maize=0
-    error_mbm=0
-    error_mdoc=0
-    error_oil=0
-    error_soya_pct=0
-    error_ddgs_pct=0
-    error_maize_pct=0
-    error_mbm_pct=0
-    error_mdoc_pct=0
-    error_oil_pct=0
-    set_total_all=0
-    total_all=0
-    error_total=0
-    error_total_pct=0
-    
-    
-    # Get plants based on user role
+    recipe_ids = []
+
+    # Form values
+    start_date = None
+    end_date = None
+    shift = None
+
+    # Actual totals
+    total_soya = total_ddgs = total_maize = total_mbm = total_mdoc = total_oil = 0
+
+    # Set totals
+    set_total_soya = set_total_ddgs = set_total_maize = set_total_mbm = set_total_mdoc = set_total_oil = 0
+
+    # Errors
+    error_soya = error_ddgs = error_maize = error_mbm = error_mdoc = error_oil = 0
+    error_soya_pct = error_ddgs_pct = error_maize_pct = error_mbm_pct = error_mdoc_pct = error_oil_pct = 0
+    set_total_all = total_all = error_total = error_total_pct = 0
+
+    # Filter plants by user role
     if request.user.is_superuser:
         plants = Plant.objects.all()
     elif request.user.designation == 'manufacture':
@@ -765,32 +750,33 @@ def consumption_shift(request):
     elif request.user.designation == 'plant_owner':
         plant = Plant.objects.filter(plant_owner_id=request.user.id).first()
         if plant:
-            plant_id = plant.plant_id
             plants = [plant]
+
     if request.method == "POST":
         start_date = request.POST.get('start_date')
         end_date = request.POST.get('end_date')
         shift = request.POST.get('shift')
         plant_id = request.POST.get('plant_id')
+
         try:
             if plant_id and shift:
+                # Get shift time range
                 filter_kwargs = {
                     'plant_id': plant_id,
                     f'{shift}__isnull': False,
                 }
-                shift_data_qs = Plant.objects.filter(**filter_kwargs) 
+                shift_data_qs = Plant.objects.filter(**filter_kwargs)
 
                 if shift_data_qs.exists():
                     plant = shift_data_qs.first()
-                    shift_start_time = getattr(plant, shift)  
+                    shift_start_time = getattr(plant, shift)
                     shift_start_dt = datetime.combine(datetime.today(), shift_start_time)
                     shift_end_dt = shift_start_dt + timedelta(hours=8)
 
-                     
                     shift_start_str = shift_start_dt.strftime("%H:%M:%S")
                     shift_end_str = shift_end_dt.strftime("%H:%M:%S")
 
-                     
+                    # Fetch batch data
                     batch_data = BatchData.objects.filter(
                         plant_id=plant_id,
                         stTime__range=(shift_start_str, shift_end_str)
@@ -799,40 +785,41 @@ def consumption_shift(request):
                     recipe_data_dict = {
                         recipe.RecipeID: recipe for recipe in Recipemain.objects.filter(RecipeID__in=recipe_ids)
                     }
-                for item in batch_data:
-                    # Calculate actuals
-                    soya_fields = [getattr(item, f'Bin{i}Act') or 0 for i in range(1, 17)]
-                    ddgs_fields = [getattr(item, f'ManWt{i}') or 0 for i in range(1, 17)]
-                    total_soya += sum(soya_fields)
-                    total_ddgs += sum(ddgs_fields)
-                    total_maize += item.Oil1Act or 0
-                    total_mbm += item.Oil2Act or 0
-                    total_mdoc += item.PremixWt1 or 0
-                    total_oil += item.PremixWt2 or 0
 
-                    # Get set wt for this recipe
-                    recipe = recipe_data_dict.get(item.RecipeID)
-                    if recipe:
-                        set_soya_fields = [getattr(recipe, f'Bin{i}SetWt') or 0 for i in range(1, 17)]
-                        set_ddgs_fields = [getattr(recipe, f'Man{i}SetWt') or 0 for i in range(1, 21)]
-                        set_total_soya += sum(set_soya_fields)
-                        set_total_ddgs += sum(set_ddgs_fields)
-                        set_total_maize += recipe.Oil1SetWt or 0
-                        set_total_mbm += recipe.Oil2SetWt or 0
-                        set_total_mdoc += recipe.Premix1Set or 0
-                        set_total_oil += recipe.Premix2Set or 0
-                    
-                    # Error Calculations (kg)
+                    # Process each batch record
+                    for item in batch_data:
+                        # Actual weights
+                        soya_fields = [getattr(item, f'Bin{i}Act') or 0 for i in range(1, 17)]
+                        ddgs_fields = [getattr(item, f'ManWt{i}') or 0 for i in range(1, 17)]
+                        total_soya += sum(soya_fields)
+                        total_ddgs += sum(ddgs_fields)
+                        total_maize += item.Oil1Act or 0
+                        total_mbm += item.Oil2Act or 0
+                        total_mdoc += item.PremixWt1 or 0
+                        total_oil += item.PremixWt2 or 0
+
+                        # Set weights from recipe
+                        recipe = recipe_data_dict.get(item.RecipeID)
+                        if recipe:
+                            set_soya_fields = [getattr(recipe, f'Bin{i}SetWt') or 0 for i in range(1, 17)]
+                            set_ddgs_fields = [getattr(recipe, f'Man{i}SetWt') or 0 for i in range(1, 21)]
+                            set_total_soya += sum(set_soya_fields)
+                            set_total_ddgs += sum(set_ddgs_fields)
+                            set_total_maize += recipe.Oil1SetWt or 0
+                            set_total_mbm += recipe.Oil2SetWt or 0
+                            set_total_mdoc += recipe.Premix1Set or 0
+                            set_total_oil += recipe.Premix2Set or 0
+
+                    # Error calculations
+                    def calc_error_pct(actual, expected):
+                        return ((actual - expected) / expected * 100) if expected else 0
+
                     error_soya = total_soya - set_total_soya
                     error_ddgs = total_ddgs - set_total_ddgs
                     error_maize = total_maize - set_total_maize
                     error_mbm = total_mbm - set_total_mbm
                     error_mdoc = total_mdoc - set_total_mdoc
                     error_oil = total_oil - set_total_oil
-
-                    # Error Percentage Calculations
-                    def calc_error_pct(actual, expected):
-                        return ((actual - expected) / expected * 100) if expected != 0 else 0
 
                     error_soya_pct = calc_error_pct(total_soya, set_total_soya)
                     error_ddgs_pct = calc_error_pct(total_ddgs, set_total_ddgs)
@@ -842,30 +829,32 @@ def consumption_shift(request):
                     error_oil_pct = calc_error_pct(total_oil, set_total_oil)
 
                     # Totals
-                    set_total_all = set_total_soya + set_total_ddgs + set_total_maize + set_total_mbm + set_total_mdoc + set_total_oil
-                    total_all = total_soya + total_ddgs + total_maize + total_mbm + total_mdoc + total_oil
+                    set_total_all = sum([set_total_soya, set_total_ddgs, set_total_maize, set_total_mbm, set_total_mdoc, set_total_oil])
+                    total_all = sum([total_soya, total_ddgs, total_maize, total_mbm, total_mdoc, total_oil])
                     error_total = total_all - set_total_all
-                    error_total_pct = calc_error_pct(total_all, set_total_all)    
+                    error_total_pct = calc_error_pct(total_all, set_total_all)
+
         except Exception as e:
             print("Error:", e)
-    return render(request,'consumption-shift-report.html', {
+
+    return render(request, 'consumption-shift-report.html', {
         'plants': plants,
         'batch_data': batch_data,
         'start_date': start_date,
         'end_date': end_date,
-        'shift':shift,
-        'total_soya':total_soya,
-        'total_ddgs':total_ddgs,
-        'total_maize':total_maize,
-        'total_mbm':total_mbm,
-        'total_mdoc':total_mdoc,
-        'total_oil':total_oil,
-        'set_total_soya':set_total_soya,
-        'set_total_ddgs':set_total_ddgs,
-        'set_total_maize':set_total_maize,
-        'set_total_mbm':set_total_mbm,
-        'set_total_mdoc':set_total_mdoc,
-        'set_total_oil':set_total_oil,
+        'shift': shift,
+        'total_soya': total_soya,
+        'total_ddgs': total_ddgs,
+        'total_maize': total_maize,
+        'total_mbm': total_mbm,
+        'total_mdoc': total_mdoc,
+        'total_oil': total_oil,
+        'set_total_soya': set_total_soya,
+        'set_total_ddgs': set_total_ddgs,
+        'set_total_maize': set_total_maize,
+        'set_total_mbm': set_total_mbm,
+        'set_total_mdoc': set_total_mdoc,
+        'set_total_oil': set_total_oil,
         'error_soya': error_soya,
         'error_ddgs': error_ddgs,
         'error_maize': error_maize,
@@ -882,7 +871,7 @@ def consumption_shift(request):
         'total_all': total_all,
         'error_total': error_total,
         'error_total_pct': error_total_pct,
-        'is_plant_owner': request.user.designation == 'plant_owner',    
+        'is_plant_owner': request.user.designation == 'plant_owner',
     })
     
  

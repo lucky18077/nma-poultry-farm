@@ -597,6 +597,7 @@ def recipe_shift(request):
     start_date=None
     end_date=None
     shift=None
+    plant_name=None
 
     # Get plants based on user role
     if request.user.is_superuser:
@@ -633,7 +634,7 @@ def recipe_shift(request):
                     shift_start_str = shift_start_dt.strftime("%H:%M:%S")
                     shift_end_str = shift_end_dt.strftime("%H:%M:%S")
 
-                     
+                    plant_name = Plant.objects.filter(plant_id=request.POST.get('plant_id')).first()
                     batch_data = BatchData.objects.filter(
                         plant_id=plant_id,
                         stTime__range=(shift_start_str, shift_end_str)
@@ -709,6 +710,7 @@ def recipe_shift(request):
             print("Error:", e)
 
     return render(request, 'recipe-shift-report.html', {
+        'plant_name':plant_name,
         'plants': plants,
         'recipe_ids': recipe_ids,
         'batch_actual': batch_actual,
@@ -724,7 +726,7 @@ def consumption_shift(request):
     plants = []
     batch_data = []
     recipe_ids = []
-
+    plant_name=None
     # Form values
     start_date = None
     end_date = None
@@ -775,7 +777,8 @@ def consumption_shift(request):
 
                     shift_start_str = shift_start_dt.strftime("%H:%M:%S")
                     shift_end_str = shift_end_dt.strftime("%H:%M:%S")
-
+                    
+                    plant_name = Plant.objects.filter(plant_id=request.POST.get('plant_id')).first()
                     # Fetch batch data
                     batch_data = BatchData.objects.filter(
                         plant_id=plant_id,
@@ -839,6 +842,7 @@ def consumption_shift(request):
 
     return render(request, 'consumption-shift-report.html', {
         'plants': plants,
+        'plant_name':plant_name,
         'batch_data': batch_data,
         'start_date': start_date,
         'end_date': end_date,
@@ -874,9 +878,165 @@ def consumption_shift(request):
         'is_plant_owner': request.user.designation == 'plant_owner',
     })
     
- 
-  
     
- 
+@login_required
+def summary_reports(request):
+    plants = Plant.objects.all()   
+    plant = None
+    start_date = end_date = None
+    batch_data = BatchData.objects.none()
+    start_date = finish_date = None
+    from_date_str = to_date_str = None
+    unique_recipe_data = None
+    shift = request.POST.get('shift')
+    plant_id = request.POST.get('plant_id')
+    hammer_stats = pellet_stats = {}
+    motor_data = []
     
-        
+     # Get plants based on user role
+    if request.user.is_superuser:
+        plants = Plant.objects.all()
+    elif request.user.designation == 'manufacture':
+        child_ids = request.session.get('child_ids', [])
+        plants = Plant.objects.filter(plant_owner_id__in=child_ids)
+    elif request.user.designation == 'plant_owner':
+        plant = Plant.objects.filter(plant_owner_id=request.user.id).first()
+        if plant:
+            plant_id = plant.plant_id
+            plants = [plant]
+    if request.method == "POST":
+        start_date = request.POST.get('start_date')
+        end_date = request.POST.get('end_date')
+        shift = request.POST.get('shift')
+        plant_id = request.POST.get('plant_id')
+
+    try:
+        if plant_id and shift:
+            filter_kwargs = {
+                'plant_id': plant_id,
+                f'{shift}__isnull': False,
+            }
+            shift_data_qs = Plant.objects.filter(**filter_kwargs)
+
+            if shift_data_qs.exists():
+                plant = shift_data_qs.first()
+                shift_start_time = getattr(plant, shift)
+                shift_start_dt = datetime.combine(datetime.today(), shift_start_time)
+                shift_end_dt = shift_start_dt + timedelta(hours=8)
+
+                shift_start_str = shift_start_dt.strftime("%H:%M:%S")
+                shift_end_str = shift_end_dt.strftime("%H:%M:%S")
+
+                batch_data = BatchData.objects.filter(
+                    plant_id=plant_id,
+                    stTime__range=(shift_start_str, shift_end_str)
+                )
+
+                # Calculate recipe weight
+                recipe_weight_expr = ExpressionWrapper(
+                    F('Bin1SetWt') + F('Bin2SetWt') + F('Bin3SetWt') +
+                    F('Bin4SetWt') + F('Bin5SetWt') + F('Bin6SetWt') +
+                    F('Bin7SetWt') + F('Bin8SetWt') + F('Bin9SetWt') +
+                    F('Bin10SetWt') + F('Bin11SetWt') + F('Bin12SetWt') +
+                    F('Bin13SetWt') + F('Bin14SetWt') + F('Bin15SetWt') + F('Bin16SetWt') +
+                    F('Oil1SetWt') + F('Oil2SetWt') + F('MedSetWt') +
+                    F('MolassesSetWt') + F('Premix1Set') + F('Premix2Set') +
+                    F('Man1SetWt') + F('Man2SetWt') + F('Man3SetWt') +
+                    F('Man4SetWt') + F('Man5SetWt') + F('Man6SetWt') +
+                    F('Man7SetWt') + F('Man8SetWt') + F('Man9SetWt') +
+                    F('Man10SetWt') + F('Man11SetWt') + F('Man12SetWt'),
+                    output_field=FloatField()
+                )
+
+                recipe_subquery = Recipemain.objects.filter(RecipeID=OuterRef('RecipeID')).annotate(
+                    total_weight=recipe_weight_expr
+                ).values('total_weight')[:1]
+
+                unique_recipe_data = batch_data.values('RecipeID') \
+                    .annotate(
+                        First_RecipeName=Min('RecipeName'),
+                        Last_RecipeName=Max('RecipeName'),
+                        batch_count=Count('RecipeID'),
+                        start_time=Min('stTime'),
+                        end_time=Min('endTime'),
+                        total_recipe_weight=Subquery(recipe_subquery)
+                    ).order_by('RecipeID')
+
+                for item in unique_recipe_data:
+                    st_time = item['start_time']
+                    end_time = item['end_time']
+                    if isinstance(st_time, str):
+                        st_time = datetime.strptime(st_time, '%H:%M:%S')
+                    if isinstance(end_time, str):
+                        end_time = datetime.strptime(end_time, '%H:%M:%S')
+                    if st_time and end_time:
+                        time_diff = end_time - st_time
+                        if time_diff.total_seconds() < 0:
+                            time_diff += timedelta(days=1)
+                        total_seconds = int(time_diff.total_seconds())
+                        hours = total_seconds // 3600
+                        minutes = (total_seconds % 3600) // 60
+                        seconds = total_seconds % 60
+                        item['total_time'] = f'{hours:02}:{minutes:02}:{seconds:02}'
+                    else:
+                        item['total_time'] = '00:00:00'
+
+                # Handle motor data
+                date_list = batch_data.values_list('stdate').distinct()
+                motor_data_raw = MotorData.objects.filter(
+                    plant_id=plant_id,
+                    sdate__in=date_list
+                ).order_by('sdate', 'sTime')
+                for row in motor_data_raw:
+                    dt = parse_datetime(row.sdate, row.sTime)
+                    if dt:
+                        row._datetime = dt
+                        motor_data.append(row)
+
+                start_time = motor_data[0]._datetime if motor_data else None
+                end_time = motor_data[-1]._datetime if motor_data else None
+                runtime_minutes = safe_round((end_time - start_time).total_seconds() / 60) if start_time and end_time else None
+
+                hammer = [m for m in motor_data if m.rvfrpm > 0]
+                hammer_avg = sum(m.rvfrpm for m in hammer) / len(hammer) if hammer else 0
+                hammer_load = sum(m.hammercurrent for m in hammer) / len(hammer) if hammer else 0
+                hammer_stats = {
+                    'hammer_avg': safe_round(hammer_avg),
+                    'hammer_efficiency': safe_round((hammer_avg / 1800) * 100) if hammer_avg else None,
+                    'avg_load': safe_round(hammer_load),
+                    'start_time': start_time,
+                    'end_time': end_time,
+                    'runtime_minutes': runtime_minutes,
+                    'hammer_count': len(hammer)
+                }
+
+                pellet = [m for m in motor_data if m.feederRPM > 0]
+                pellet_avg = sum(m.rvfrpm for m in pellet) / len(pellet) if pellet else 0
+                pellet_load = sum(m.pelletcurrent for m in pellet) / len(pellet) if pellet else 0
+                pellet_stats = {
+                    'pellet_avg': safe_round(pellet_avg),
+                    'pellet_efficiency': safe_round((pellet_avg / 1500) * 100) if pellet_avg else None,
+                    'avg_load': safe_round(pellet_load),
+                    'start_time': start_time,
+                    'end_time': end_time,
+                    'runtime_minutes': runtime_minutes,
+                    'pellet_count': len(pellet)
+                }
+
+                start_date = start_time.date() if start_time else None
+                finish_date = end_time.date() if end_time else None
+
+    except Exception as e:
+        print("Error:", e)
+
+    return render(request, 'summary-report.html', {
+        'plant': plant,
+        'plants': plants,
+        'unique_recipe_data': unique_recipe_data,
+        'start_date': start_date,
+        'end_date': end_date,
+        'hammer_stats': hammer_stats,
+        'pellet_stats': pellet_stats,
+        'from_datetime': from_date_str,
+        'to_datetime': to_date_str,
+    })

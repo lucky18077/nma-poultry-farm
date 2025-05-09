@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-3fwj)bohg$h(gqs^0pr=!_h(i1x-f*+u8y4i7tmt3eww^q7-@d
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -80,10 +80,10 @@ AUTH_USER_MODEL = 'pfapp.User'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'testDB',
-        'USER': 'admin',
-        'PASSWORD': Tmgiot2025',
-        'HOST': 'testdb.clqkuge4e1f0.ap-south-1.rds.amazonaws.com',
+        'NAME': 'tmg',
+        'USER': 'root',
+        'PASSWORD': 'Lucky@12345',
+        'HOST': '127.0.0.1',
         'PORT': '3306',
 
     }

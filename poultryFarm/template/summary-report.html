@@ -1,0 +1,258 @@
+{% include "header.html" %}
+
+<div class="dashboard-main-body">
+
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
+        <h6 class="fw-semibold mb-0">Summary Report</h6>
+        <ul class="d-flex align-items-center gap-2">
+            <form method="POST" action="{% url 'summary_reports' %}">
+                {% csrf_token %}
+                <div class="d-flex flex-wrap align-items-center gap-3">
+                    <div>
+                        <label for="from_datetime">Plant</label>
+                        <select name="plant_id" class="form-select form-select-sm w-auto" required>
+                            <option disabled {% if not request.POST.plant_id %}selected{% endif %}>Select Plant</option>
+                            {% for plant in plants %}
+                            <option value="{{ plant.plant_id }}" {% if request.POST.plant_id == plant.plant_id|stringformat:"s" %}selected{% endif %}>
+                                {{ plant.plant_name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="shift">Shift</label>
+                        <select name="shift" class="form-select form-select-sm w-auto" required>
+                            <option disabled {% if not request.POST.shift %}selected{% endif %}>Select Shift</option>
+                            <option value="shiftA" {% if request.POST.shift == "shiftA" %}selected{% endif %}>Shift A</option>
+                            <option value="shiftB" {% if request.POST.shift == "shiftB" %}selected{% endif %}>Shift B</option>
+                            <option value="shiftC" {% if request.POST.shift == "shiftC" %}selected{% endif %}>Shift C</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="from_datetime">From DateTime</label>
+                        <input type="date" name="start_date" class="form-control" value="{{ request.POST.start_date|default:start_date }}" required>
+                    </div>
+                    <div>
+                        <label for="to_datetime">To DateTime</label>
+                        <input type="date" name="end_date" class="form-control" value="{{ request.POST.end_date|default:end_date }}" required>
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-primary-600" style="margin-top: 22px;">
+                        Submit
+                    </button>
+                </div>
+            </form>
+        </ul>
+    </div>
+    <div class="text-end no-print ">
+        <button class="btn btn-sm btn-success radius-8 d-inline-flex align-items-center gap-1" id="print_summary_report"><iconify-icon icon="solar:download-linear" class="text-xl"></iconify-icon>Download PDF</button>
+    </div>
+    <!-- <div class="print-only"><h6 style="color: #61acd9;">{{  plant_name.plant_name }}</h6></div> -->
+    
+    <div class="print_summary_container">
+    <div class="print-only text-center"><h6 style="color: #61acd9;">LARK ENGINEERING COMPANY (INDIA) PVT LTD</h6></div>
+    <div class="print-only text-center"><h6 style="color: #61acd9;">Summary Reports</h6></div>
+    <div class="row gy-4">
+        <div class="card-body p-24">
+            <div class="table-responsive scroll-sm">
+                <table class="table bordered-table sm-table mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="no-print">S No</th>
+                            <th scope="col">Recipe Name</th>
+                            <th scope="col">Batch Count</th>
+                            <th scope="col">Batch Size </th>
+                            <th scope="col">Recipe Start Time </th>
+                            <th scope="col">Recipe End Time </th>
+                            <th scope="col">Total Time </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            {% for item in unique_recipe_data  %}
+                                <tr>
+                                    <td class="no-print">{{ forloop.counter }}</td>
+                                    <td>{{ item.Last_RecipeName }}</td>
+                                    <td>{{ item.batch_count }}</td>
+                                    <td>{{ item.total_recipe_weight }}</td>
+                                    <td> {{ item.start_time }}</td>
+                                    <td>{{ item.end_time }} </td>
+                                    <td>{{ item.total_time }}</td>
+                                </tr>
+                                {% endfor %}
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="row gy-4 mt-3">
+        <div class="col-xxl-6 col-xl-12">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between">
+                        <h6 class="mb-2 fw-bold text-lg mb-0">Hammer Mill History</h6>
+                    </div>
+                    <div class="mt-32">
+
+                        <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                            <div class="d-flex align-items-center">
+
+                                <div class="flex-grow-1">
+                                    <h6 class="text-md mb-0 fw-medium">Hammer Mill Start Time</h6>
+                                </div>
+                            </div>
+                            <span class="text-primary-light text-md fw-medium">{{ hammer_stats.start_time|default:"00" }}</span>
+                        </div>
+
+                        <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                            <div class="d-flex align-items-center">
+
+                                <div class="flex-grow-1">
+                                    <h6 class="text-md mb-0 fw-medium">Hammer Mill End Time</h6>
+                                </div>
+                            </div>
+                            <span class="text-primary-light text-md fw-medium">{{ hammer_stats.end_time|default:"00" }}</span>
+                        </div>
+
+                        <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                            <div class="d-flex align-items-center">
+
+                                <div class="flex-grow-1">
+                                    <h6 class="text-md mb-0 fw-medium">Hammer Mill Run Time</h6>
+                                </div>
+                            </div>
+                            <span class="text-primary-light text-md fw-medium">
+                                {{ hammer_stats.hammer_count|default:"00" }}
+                            </span>
+                        </div>
+
+                        <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                            <div class="d-flex align-items-center">
+
+                                <div class="flex-grow-1">
+                                    <h6 class="text-md mb-0 fw-medium">Hammer Mill Effective Time</h6>
+                                </div>
+                            </div>
+                            <span class="text-primary-light text-md fw-medium">{{ hammer_stats.hammer_avg|floatformat:2|default:"00" }}</span>
+                        </div>
+
+                        <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                            <div class="d-flex align-items-center">
+
+                                <div class="flex-grow-1">
+                                    <h6 class="text-md mb-0 fw-medium">Hammer Efficiency</h6>
+                                </div>
+                            </div>
+                            <span class="text-primary-light text-md fw-medium">{{ hammer_stats.hammer_efficiency|floatformat:2|default:"00" }}%</span>
+                        </div>
+
+                        <div class="d-flex align-items-center justify-content-between gap-3">
+                            <div class="d-flex align-items-center">
+
+                                <div class="flex-grow-1">
+                                    <h6 class="text-md mb-0 fw-medium">Average Load</h6>
+                                </div>
+                            </div>
+                            <span class="text-primary-light text-md fw-medium">{{ hammer_stats.avg_load|floatformat:2|default:"00" }}</span>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-xxl-6 col-xl-12">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between">
+                        <h6 class="mb-2 fw-bold text-lg mb-0">Pellet Mill History</h6>
+                    </div>
+                    <div class="mt-32">
+
+                        <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                            <div class="d-flex align-items-center">
+
+                                <div class="flex-grow-1">
+                                    <h6 class="text-md mb-0 fw-medium">Pellet Mill Start Time</h6>
+                                </div>
+                            </div>
+                            <span class="text-primary-light text-md fw-medium">{{ pellet_stats.start_time|default:"00" }}</span>
+                        </div>
+
+                        <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                            <div class="d-flex align-items-center">
+
+                                <div class="flex-grow-1">
+                                    <h6 class="text-md mb-0 fw-medium">Pellet Mill End Time</h6>
+                                </div>
+                            </div>
+                            <span class="text-primary-light text-md fw-medium">{{ pellet_stats.end_time|default:"00" }}</span>
+                        </div>
+
+                        <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                            <div class="d-flex align-items-center">
+
+                                <div class="flex-grow-1">
+                                    <h6 class="text-md mb-0 fw-medium">Pellet Mill Run Time</h6>
+                                </div>
+                            </div>
+                            <span class="text-primary-light text-md fw-medium">{{ pellet_stats.pellet_count|default:"00" }}</span>
+                        </div>
+
+                        <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                            <div class="d-flex align-items-center">
+
+                                <div class="flex-grow-1">
+                                    <h6 class="text-md mb-0 fw-medium">Pellet Mill Effective Time</h6>
+                                </div>
+                            </div>
+                            <span class="text-primary-light text-md fw-medium">{{ pellet_stats.pellet_avg|floatformat:2|default:"00" }}</span>
+                        </div>
+
+                        <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                            <div class="d-flex align-items-center">
+
+                                <div class="flex-grow-1">
+                                    <h6 class="text-md mb-0 fw-medium">Pellet Efficiency</h6>
+                                </div>
+                            </div>
+                            <span class="text-primary-light text-md fw-medium">{{ pellet_stats.pellet_efficiency|floatformat:2|default:"00" }}%</span>
+                        </div>
+
+                        <div class="d-flex align-items-center justify-content-between gap-3">
+                            <div class="d-flex align-items-center">
+
+                                <div class="flex-grow-1">
+                                    <h6 class="text-md mb-0 fw-medium">Average Load</h6>
+                                </div>
+                            </div>
+                            <span class="text-primary-light text-md fw-medium">{{ pellet_stats.avg_load|floatformat:2|default:"00" }}</span>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+</div>
+
+{% include "footer.html" %}
+<script>
+    document.getElementById("print_summary_report").addEventListener("click", function () {
+        var containers = document.getElementsByClassName("print_summary_container");
+        var printContents = "";
+
+        for (var i = 0; i < containers.length; i++) {
+            printContents += containers[i].outerHTML;
+        }
+
+        var originalContents = document.body.innerHTML;
+
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+        location.reload(); 
+    });
+</script>

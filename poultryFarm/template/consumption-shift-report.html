@@ -45,24 +45,31 @@
             </form>
         </ul>
     </div>
-     
-        <div class="card basic-data-table">
+<div class="consumption_container">
+    <div class="text-end no-print">
+        <button class="btn btn-sm btn-success radius-8 d-inline-flex align-items-center gap-1" id="print_report"><iconify-icon icon="solar:download-linear" class="text-xl"></iconify-icon>Download PDF</button>
+    </div>
+    <div class="print-only text-center "><h6 style="color: #61acd9;">LARK ENGINEERING COMPANY (INDIA) PVT LTD</h6></div>
+    <div class="print-only text-center "><h6 style="color: #61acd9;">Consumption Report</h6></div>
+        <div class="card basic-data-table mt-3">
             <div class="card-header">
-                <div class="d-flex gap-3">
-                    <h5 class="card-title mb-0">
-                        Shift :
-                        {% if shift == "shiftA" %}
-                          Shift A
-                        {% elif shift == "shiftB" %}
-                          Shift B
-                        {% elif shift == "shiftC" %}
-                          Shift C
-                        {% else %}
-                          {{ shift }}
-                        {% endif %}
-                    </h5>
-                </div>
-                
+                <div class="justify-content-around d-flex">
+                    <div>
+                          <h5 class="card-title mb-0">Plant Name : {{  plant_name.plant_name }}</h5> 
+                    </div>
+                <h5 class="card-title mb-0" style="margin-left: 10px;">
+                    Shift :
+                    {% if shift == "shiftA" %}
+                    Shift A
+                    {% elif shift == "shiftB" %}
+                    Shift B
+                    {% elif shift == "shiftC" %}
+                    Shift C
+                    {% else %}
+                    {{ shift }}
+                    {% endif %}
+                </h5>
+            </div>
             </div>
             <div class="card-body">
                 <table class="table bordered-table mb-0"  >
@@ -137,8 +144,20 @@
                 </table>
             </div>
         </div>
-         
+    </div>    
      
 </div>
 
 {% include "footer.html" %}
+
+<script>
+    document.getElementById("print_report").addEventListener("click", function () {
+        var printContents = document.querySelector(".consumption_container").innerHTML;
+        var originalContents = document.body.innerHTML;
+
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+        location.reload(); 
+    });
+</script>

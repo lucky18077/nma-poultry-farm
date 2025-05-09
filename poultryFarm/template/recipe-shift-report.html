@@ -5,6 +5,7 @@
     <div class="dashboard-main-body">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
             <h6 class="fw-semibold mb-0">Recipe Shift Report</h6>
+            
             <ul class="d-flex align-items-center gap-2">
                 <form method="POST" action="{% url 'recipe_shift' %}">
                     {% csrf_token %}
@@ -45,27 +46,37 @@
                 </form>
             </ul>
         </div>
+
+        <div class="print_container">
+            <div class="text-end no-print ">
+                <button class="btn btn-sm btn-success radius-8 d-inline-flex align-items-center gap-1" id="print_recipe_report"><iconify-icon icon="solar:download-linear" class="text-xl"></iconify-icon>Download PDF</button>
+            </div>
+        <!-- <div class="print-only"><h6 style="color: #61acd9;">{{  plant_name.plant_name }}</h6></div> -->
+        <div class="print-only text-center"><h6 style="color: #61acd9;">LARK ENGINEERING COMPANY (INDIA) PVT LTD</h6></div>
+        <div class="print-only text-center"><h6 style="color: #61acd9;">Recipe Reports</h6></div>
         {% if batch_actual %} 
             {% for batch in batch_actual %}
-            <div class="card basic-data-table mb-5">
+            <div class="card basic-data-table mb-5 mt-3">
                 <div class="card-header">
                     <div class="d-flex gap-3">
                     <h5 class="card-title mb-0">Recipe Name : {{ batch.RecipeName }} </h5>
-                    <h5 class="card-title mb-0">
-                        Shift :
-                        {% if shift == "shiftA" %}
-                          Shift A
-                        {% elif shift == "shiftB" %}
-                          Shift B
-                        {% elif shift == "shiftC" %}
-                          Shift C
-                        {% else %}
-                          {{ shift }}
-                        {% endif %}
-                    </h5>
+                        <h5 class="card-title mb-0">
+                            Shift :
+                            {% if shift == "shiftA" %}
+                            Shift A
+                            {% elif shift == "shiftB" %}
+                            Shift B
+                            {% elif shift == "shiftC" %}
+                            Shift C
+                            {% else %}
+                            {{ shift }}
+                            {% endif %}
+                        </h5>
+                        
                     </div>
+                    
                 </div>
-                <div class="card-body">
+                <div class="card-body" >
 
                     <table class="table bordered-table mb-0">
                         <thead>
@@ -143,8 +154,27 @@
             {% else %}
         <div class="alert alert-warning">No data found</div>
         {% endif %}
+    </div>
 
     </div>
 </div>
 
 {% include "footer.html" %}
+
+<script>
+    document.getElementById("print_recipe_report").addEventListener("click", function () {
+        var containers = document.getElementsByClassName("print_container");
+        var printContents = "";
+
+        for (var i = 0; i < containers.length; i++) {
+            printContents += containers[i].outerHTML;
+        }
+
+        var originalContents = document.body.innerHTML;
+
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+        location.reload(); 
+    });
+</script>

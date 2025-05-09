@@ -43,6 +43,13 @@
             </form>
         </ul>
     </div>
+    <div class="print_batch_container">
+        <div class="text-end no-print ">
+            <button class="btn btn-sm btn-success radius-8 d-inline-flex align-items-center gap-1" id="print_batch_report"><iconify-icon icon="solar:download-linear" class="text-xl"></iconify-icon>Download PDF</button>
+        </div>
+    <!-- <div class="print-only"><h6 style="color: #61acd9;">{{  plant_name.plant_name }}</h6></div> -->
+    <div class="print-only text-center"><h6 style="color: #61acd9;">LARK ENGINEERING COMPANY (INDIA) PVT LTD</h6></div>
+    <div class="print-only text-center"><h6 style="color: #61acd9;">Batch Reports</h6></div>
     {% if batch_counts %}
         {% for item in batch_counts %}
             <div class="card basic-data-table mb-24">
@@ -63,6 +70,7 @@
                             {% endif %}
                         </h5>
                     </div>
+                    
                 </div>
                 <div class="card-body">
                     <table class="table bordered-table mb-0">
@@ -106,7 +114,25 @@
     {% else %}
     <div class="alert alert-warning">No data found</div>
     {% endif %}     
-    
+    </div>
 </div>
 
 {% include "footer.html" %}
+
+<script>
+    document.getElementById("print_batch_report").addEventListener("click", function () {
+        var containers = document.getElementsByClassName("print_batch_container");
+        var printContents = "";
+
+        for (var i = 0; i < containers.length; i++) {
+            printContents += containers[i].outerHTML;
+        }
+
+        var originalContents = document.body.innerHTML;
+
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+        location.reload(); 
+    });
+</script>

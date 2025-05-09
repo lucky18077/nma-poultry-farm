@@ -37,6 +37,26 @@
     <link rel="stylesheet" href="/static/asset/css/lib/audioplayer.css">
     <!-- main css -->
     <link rel="stylesheet" href="/static/asset/css/style.css">
+    <style>
+    .print-only {
+        display: none;
+    }
+    
+    @media print {
+        .print-only {
+            display: block;
+        }
+    }
+    .no-print {
+    display: block;
+}
+
+@media print {
+    .no-print {
+        display: none;
+    }
+}
+    </style>
 </head>
 
 <body>
@@ -79,6 +99,9 @@
                       </li>
                       <li>
                         <a href="{% url 'consumption_shift'%}"><i class="ri-circle-fill circle-icon text-info-main w-auto"></i> Consumption  Report</a>
+                      </li>
+                      <li>
+                        <a href="{% url 'summary_reports'%}"><i class="ri-circle-fill circle-icon text-info-main w-auto"></i>Summary   Report</a>
                       </li>
                       
                     </ul>

@@ -16,6 +16,7 @@ urlpatterns = [
     path('batch-shift-report', views.batch_shift, name='batch_shift'),
     path('recipe-shift-report', views.recipe_shift, name='recipe_shift'),
     path('consumption-shift-report', views.consumption_shift, name='consumption_shift'),
+    path('summary-report', views.summary_reports, name='summary_reports'),
 
 ]
 

@@ -15,7 +15,8 @@ def plant_list_api(request):
 @api_view(['POST'])
 def insert_batchdata(request):
     try:
-        plant_header_id = request.headers.get('Plant-Id')
+        plant_header_id = request.headers.get('plant_id')
+        print(plant_header_id)
         print('Received Plant ID:', plant_header_id)
 
         if not plant_header_id:

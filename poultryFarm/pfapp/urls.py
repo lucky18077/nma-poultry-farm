@@ -22,7 +22,13 @@ urlpatterns = [
     
     # *********API Route*************
     path('api/plants/', api_views.plant_list_api, name='api_plant_list'),
-    path('api/batchdata/', api_views.insert_batchdata, name='insert_batchdata'),
+    path('api/batchdata/', api_views.insert_batchdata, name='api_insert_batchdata'),
+    path('api/insert-recipe/', api_views.insert_recipe, name='api_insert_recipe'),
+    path('api/insert-motordata/', api_views.insert_motordata, name='api_insert_motordata'),
+    path('api/insert-materialname/', api_views.insert_materialname, name='api_insert_materialname'),
+    path('api/insert-binname/', api_views.insert_binname, name='api_insert_binname'),
+    path('api/insert-bagdata/', api_views.insert_bagdata, name='api_insert_bagdata'),
+    
 
 ]
 

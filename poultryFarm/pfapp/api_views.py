@@ -1,9 +1,10 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import Plant,BatchData
+from .models import Plant,BagData
 from django.http import JsonResponse
-from .serializers import RecipemainSerializer,BatchDataSerializer
+from .serializers import RecipemainSerializer,BatchDataSerializer,MotorDataSerializer,MaterialNameSerializer,BinNameSerializer,BagDataInsertSerializer
 from rest_framework import status
+from datetime import datetime
 
 # ******api view********
 
@@ -45,3 +46,153 @@ def insert_batchdata(request):
 
     except Exception as e:
         return Response({'status': 'error', 'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
+@api_view(['POST'])
+def insert_recipe(request):
+    try:
+        plant_header_id = request.headers.get('Plant-ID') or request.headers.get('plant_id')
+        print('Received Plant ID:', plant_header_id)
+
+        if not plant_header_id:
+            return Response({'status': 'error', 'message': 'Plant ID not found in Header'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            plant = Plant.objects.get(plant_id=plant_header_id)
+        except Plant.DoesNotExist:
+            return Response({'status': 'error', 'message': 'Plant ID not Match'}, status=status.HTTP_400_BAD_REQUEST)
+
+        data = request.data.copy()   
+        data['plant'] = plant.id   
+
+        serializer = RecipemainSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'status': 'success', 'message': 'Recipe inserted successfully'}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'status': 'error', 'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+    except Exception as e:
+        return Response({'status': 'error', 'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)    
+    
+@api_view(['POST'])
+def insert_motordata(request):
+    try:
+        plant_header_id = request.headers.get('Plant-ID') or request.headers.get('plant_id')
+        print('Received Plant ID:', plant_header_id)
+
+        if not plant_header_id:
+            return Response({'status': 'error', 'message': 'Plant ID not found in Header'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            plant = Plant.objects.get(plant_id=plant_header_id)
+        except Plant.DoesNotExist:
+            return Response({'status': 'error', 'message': 'Plant ID not Match'}, status=status.HTTP_400_BAD_REQUEST)
+
+        data = request.data.copy()
+        serializer = MotorDataSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'status': 'success', 'message': 'Motor data inserted successfully'}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'status': 'error', 'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+    except Exception as e:
+        return Response({'status': 'error', 'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)    
+    
+@api_view(['POST'])
+def insert_materialname(request):
+    try:
+        plant_header_id = request.headers.get('Plant-ID') or request.headers.get('plant_id')
+        print('Received Plant ID:', plant_header_id)
+
+        if not plant_header_id:
+            return Response({'status': 'error', 'message': 'Plant ID not found in Header'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            plant = Plant.objects.get(plant_id=plant_header_id)
+        except Plant.DoesNotExist:
+            return Response({'status': 'error', 'message': 'Plant ID not Match'}, status=status.HTTP_400_BAD_REQUEST)
+
+        MatName = request.data.get('MatName')
+        if not MatName:
+            return Response({'status': 'error', 'message': 'MatName is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        material_data = {
+            'plant': plant.id,
+            'MatName': MatName
+        }
+
+        serializer = MaterialNameSerializer(data=material_data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'status': 'success', 'message': 'Material inserted successfully'}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'status': 'error', 'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST) 
+       
+    except Exception as e:
+        return Response({'status': 'error', 'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)    
+   
+@api_view(['POST'])
+def insert_binname(request):
+    try:
+        plant_header_id = request.headers.get('Plant-ID') or request.headers.get('plant_id')
+        print('Received Plant ID:', plant_header_id)
+
+        if not plant_header_id:
+            return Response({'status': 'error', 'message': 'Plant ID not found in Header'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            plant = Plant.objects.get(plant_id=plant_header_id)
+        except Plant.DoesNotExist:
+            return Response({'status': 'error', 'message': 'Plant ID not Match'}, status=status.HTTP_400_BAD_REQUEST)
+
+        recipeID = request.data.get('recipeID')
+        if not recipeID:
+            return Response({'status': 'error', 'message': 'recipeID is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Prepare data for serializer
+        binname_data = request.data.copy()
+        binname_data['plant'] = plant.id  # ForeignKey needs id
+        binname_data['recipeID'] = recipeID
+
+        serializer = BinNameSerializer(data=binname_data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'status': 'success', 'message': 'Binname inserted successfully'}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'status': 'error', 'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)    
+    except Exception as e:
+        return Response({'status': 'error', 'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)  
+    
+@api_view(['POST'])
+def insert_bagdata(request):   
+    try:
+        plant_header_id = request.headers.get('Plant-ID') or request.headers.get('plant_id')
+        print('Received Plant ID:', plant_header_id)
+
+        if not plant_header_id:
+            return Response({'status': 'error', 'message': 'Plant ID not found in Header'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            plant = Plant.objects.get(plant_id=plant_header_id)
+        except Plant.DoesNotExist:
+            return Response({'status': 'error', 'message': 'Plant ID not Match'}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = BagDataInsertSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response({'status': 'error', 'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        validated_data = serializer.validated_data
+
+        # Insert manually using model
+        BagData.objects.create(
+            sdate=validated_data['sdate'],
+            sTime=validated_data['sTime'],
+            bagcount=validated_data['bagcount'],
+            plant=plant
+        )
+
+        return Response({'status': 'success', 'message': 'Bag data inserted successfully'}, status=status.HTTP_201_CREATED)
+    except Exception as e:
+        return Response({'status': 'error', 'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)     

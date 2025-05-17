@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Plant, Recipemain, BatchData, MotorData, MaterialName, BinName, User
+from .models import Plant, Recipemain, BatchData, MotorData, MaterialName, BinName, BagData
  
 
 class PlantSerializer(serializers.ModelSerializer):
@@ -31,3 +31,8 @@ class BinNameSerializer(serializers.ModelSerializer):
     class Meta:
         model = BinName
         fields = '__all__'
+        
+class BagDataInsertSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BagData   
+        fields = '__all__'     

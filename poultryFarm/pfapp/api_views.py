@@ -2,7 +2,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Plant,BatchData
 from django.http import JsonResponse
-from .serializers import RecipemainSerializer
+from .serializers import RecipemainSerializer,BatchDataSerializer
 from rest_framework import status
 
 # ******api view********
@@ -31,11 +31,11 @@ def insert_batchdata(request):
             for item in request.data:
                 item['plant'] = plant.id
                 data_list.append(item)
-            serializer = RecipemainSerializer(data=data_list, many=True)
+            serializer = BatchDataSerializer(data=data_list, many=True)
         else:
             data = request.data.copy()
             data['plant'] = plant.id
-            serializer = RecipemainSerializer(data=data)
+            serializer = BatchDataSerializer(data=data)
 
         if serializer.is_valid():
             serializer.save()

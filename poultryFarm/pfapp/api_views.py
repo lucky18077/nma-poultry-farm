@@ -15,8 +15,7 @@ def plant_list_api(request):
 @api_view(['POST'])
 def insert_batchdata(request):
     try:
-        plant_header_id = request.headers.get('plant_id')
-        print(plant_header_id)
+        plant_header_id = request.headers.get('Plant-ID') or request.headers.get('plant_id')
         print('Received Plant ID:', plant_header_id)
 
         if not plant_header_id:
@@ -27,10 +26,17 @@ def insert_batchdata(request):
         except Plant.DoesNotExist:
             return Response({'status': 'error', 'message': 'Plant ID not Match'}, status=status.HTTP_400_BAD_REQUEST)
 
-        data = request.data.copy()   
-        data['plant'] = plant.id  
+        if isinstance(request.data, list):
+            data_list = []
+            for item in request.data:
+                item['plant'] = plant.id
+                data_list.append(item)
+            serializer = RecipemainSerializer(data=data_list, many=True)
+        else:
+            data = request.data.copy()
+            data['plant'] = plant.id
+            serializer = RecipemainSerializer(data=data)
 
-        serializer = RecipemainSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return Response({'status': 'success', 'message': 'Batch data inserted successfully'}, status=status.HTTP_201_CREATED)

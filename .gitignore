@@ -9,9 +9,7 @@ venv/
 # Ignore Django database file (if using SQLite)
 db.sqlite3
 
-# Ignore media and static files
-media/
-static/
+
 
 # Ignore log files
 *.log

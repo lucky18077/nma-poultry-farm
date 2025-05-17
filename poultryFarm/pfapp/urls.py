@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views 
+from . import api_views
 
 urlpatterns = [
     path('', views.index, name='index'), 
@@ -17,6 +18,11 @@ urlpatterns = [
     path('recipe-shift-report', views.recipe_shift, name='recipe_shift'),
     path('consumption-shift-report', views.consumption_shift, name='consumption_shift'),
     path('summary-report', views.summary_reports, name='summary_reports'),
+    
+    
+    # *********API Route*************
+    path('api/plants/', api_views.plant_list_api, name='api_plant_list'),
+    path('api/batchdata/', api_views.insert_batchdata, name='insert_batchdata'),
 
 ]
 

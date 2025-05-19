@@ -70,7 +70,7 @@ class Recipemain(models.Model):
     Premix1Set = models.FloatField(null=True, blank=True)
     Premix2Set = models.FloatField(null=True, blank=True)
     
-    recipename = models.CharField(max_length=255)
+    recipename = models.CharField(max_length=255,null=True, blank=True)
     
     Man1SetWt = models.FloatField(null=True, blank=True)
     Man2SetWt = models.FloatField(null=True, blank=True)

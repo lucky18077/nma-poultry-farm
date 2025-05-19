@@ -11,6 +11,9 @@ class RecipemainSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipemain
         fields = '__all__'
+        extra_kwargs={
+            'plant_id':{'required':False},
+        }
 
 class BatchDataSerializer(serializers.ModelSerializer):
     class Meta:

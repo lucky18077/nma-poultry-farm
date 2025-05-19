@@ -41,7 +41,7 @@ class Plant(models.Model):
         db_table = 'plant'
 
 class Recipemain(models.Model):
-    RecipeID = models.AutoField(primary_key=True)
+    RecipeID = models.IntegerField(primary_key=True)
     plant_id = models.IntegerField()
     
     Bin1SetWt = models.FloatField(null=True, blank=True)

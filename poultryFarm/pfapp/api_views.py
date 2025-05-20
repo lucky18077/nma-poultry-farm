@@ -27,22 +27,20 @@ def insert_batchdata(request):
         except Plant.DoesNotExist:
             return Response({'status': 'error', 'message': 'Plant ID not Match'}, status=status.HTTP_400_BAD_REQUEST)
 
-        if isinstance(request.data, list):
-            data_list = []
-            for item in request.data:
-                item['plant'] = plant.id
-                data_list.append(item)
-            serializer = BatchDataSerializer(data=data_list, many=True)
+        if isinstance(request.data, dict) and 'data' in request.data:
+            batch = request.data['data']
         else:
-            data = request.data.copy()
-            data['plant'] = plant.id
-            serializer = BatchDataSerializer(data=data)
+            return Response({'status': 'error', 'message': 'Missing data list'}, status=status.HTTP_400_BAD_REQUEST)
 
-        if serializer.is_valid():
-            serializer.save()
-            return Response({'status': 'success', 'message': 'Batch data inserted successfully'}, status=status.HTTP_201_CREATED)
-        else:
-            return Response({'status': 'error', 'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        for bch in batch:
+            bch['plant_id'] = plant_header_id  # assign plant_id from header
+            serializer = BagDataInsertSerializer(data=bch)
+            if serializer.is_valid():
+                serializer.save()
+            else:
+                return Response({'status': 'error', 'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({'status': 'success', 'message': 'All recipes inserted successfully'}, status=status.HTTP_201_CREATED)
 
     except Exception as e:
         return Response({'status': 'error', 'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

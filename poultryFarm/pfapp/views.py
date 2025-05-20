@@ -16,6 +16,10 @@ from django.utils.timezone import make_aware
 from django.utils.dateparse import parse_datetime
 from django.db.models import Q
 User = get_user_model()
+import os
+from django.conf import settings
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
 
 # Login views.
 def index(request):
@@ -80,11 +84,12 @@ def save_user(request):
         password = request.POST.get('password')
         designation = request.POST.get('designation')
         first_name = request.POST.get('first_name')
-
+        profile_photo = request.FILES.get('last_name')
         # Find the only admin user
         # admin_user = User.objects.filter(designation='admin').first()
         reporting_manager_id = request.POST.get('reporting_manager_id')
-
+        upload_dir = os.path.join(settings.BASE_DIR, 'static', 'asset', 'last_name')
+        os.makedirs(upload_dir, exist_ok=True)
         if user_id:
             user = User.objects.get(id=user_id)
             user.username = username
@@ -94,17 +99,34 @@ def save_user(request):
             user.first_name = first_name
             user.reporting_manager_id=reporting_manager_id
             # user.reporting_manager = admin_user
+            if profile_photo:
+                image_path = os.path.join(upload_dir, profile_photo.name)
+                with open(image_path, 'wb+') as f:
+                    for chunk in profile_photo.chunks():
+                        f.write(chunk)
+                user.last_name = f"asset/last_name/{profile_photo.name}"
+
             user.save()
         else:
-            User.objects.create(
+            user = User(
                 username=username,
                 email=email,
-                password=password,  # (hash if needed)
                 designation=designation,
                 first_name=first_name,
                 reporting_manager_id=reporting_manager_id
-                # reporting_manager=admin_user
             )
+            if password:
+                user.set_password(password)
+
+            if profile_photo:
+                image_path = os.path.join(upload_dir, profile_photo.name)
+                with open(image_path, 'wb+') as f:
+                    for chunk in profile_photo.chunks():
+                        f.write(chunk)
+                user.last_name = f"asset/last_name/{profile_photo.name}"
+
+            user.save()
+
         return redirect('users')
 
 # Plant List views.    

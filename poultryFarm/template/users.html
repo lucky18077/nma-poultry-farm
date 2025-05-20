@@ -65,6 +65,7 @@
                                 data-email="{{ user.email }}" data-password="{{ user.password }}"
                                 data-designation="{{ user.designation }}"
                                 data-first_name="{{ user.first_name }}"
+                                data-last_name="{{ user.last_name }}"
                                 data-reporting_manager_id="{{ user.reporting_manager_id }}">
                                 <iconify-icon icon="lucide:edit"></iconify-icon>
                             </button>
@@ -96,7 +97,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-24">
-                <form id="userForm" method="POST" action="{% url 'save_user' %}">
+                <form id="userForm" method="POST" action="{% url 'save_user' %}" enctype="multipart/form-data">
                     {% csrf_token %}
                     <input type="hidden" id="id" name="id">
                     <div class="row">
@@ -121,6 +122,13 @@
                             <label class="form-label fw-semibold text-primary-light text-sm mb-8">Password </label>
                             <input type="text" id="password" name="password" class="form-control radius-8"
                                 placeholder="Enter Password " required>
+                        </div>
+
+                        <div class="col-6 mb-20">
+                            <label class="form-label fw-semibold text-primary-light text-sm mb-8">Profile Photo </label>
+                            <input type="file" id="last_name" name="last_name" class="form-control radius-8"
+                               accept="image/*"  >
+                            <img id="last_name_preview" src="" alt="User Image" style="max-width: 100px; display: none; margin-top: 8px;" />  
                         </div>
 
                         <div class="col-6 mb-20">
@@ -171,12 +179,18 @@
                 $('#reporting_manager_id').val('');
             }
         });
-
+        $("#last_name_preview").hide();
         $(document).on("click", ".edit-user", function () {
             $("#id").val($(this).data('id'));
             $("#username").val($(this).data('username'));
             $("#email").val($(this).data('email'));
             $("#first_name").val($(this).data('first_name'));
+            var imagePath = $(this).data('last_name');  
+            if (imagePath) {
+                $("#last_name_preview").attr('src', '/static/' + imagePath).show();
+            } else {
+                $("#last_name_preview").hide();
+            }
             $("#password").val($(this).data('password'));
             $("#designation").val($(this).data('designation')).trigger('change');
             $("#reporting_manager_id").val($(this).data('reporting_manager_id')); // 👈 Add this line
@@ -190,6 +204,7 @@
             $("#email").val("");
             $("#password").val("");
             $("#first_name").val("");
+            $("#last_name").val("");
             $("#designation").val("").trigger('change'); // optional if you want clean reset
             $(".btnname").html('Add User');
             $("#userModal").modal('show');

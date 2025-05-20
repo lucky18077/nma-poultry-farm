@@ -230,7 +230,7 @@ class BinName(models.Model):
         
 class BagData(models.Model):
     sdate = models.CharField(max_length=255, blank=True, null=True)   
-    sTime = models.CharField(max_length=255, blank=True, null=True) 
+    sTime = models.CharField(primary_key=True) 
     plant_id = models.IntegerField()
     bagcount = models.IntegerField(blank=True, null=True)
     bagWT = models.FloatField(max_length=255, blank=True, null=True)

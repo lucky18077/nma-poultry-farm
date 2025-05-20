@@ -184,20 +184,20 @@ def insert_bagdata(request):
         except Plant.DoesNotExist:
             return Response({'status': 'error', 'message': 'Plant ID not Match'}, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = BagDataInsertSerializer(data=request.data)
-        if not serializer.is_valid():
-            return Response({'status': 'error', 'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        if isinstance(request.data, dict) and 'data' in request.data:
+            bags = request.data['data']
+        else:
+            return Response({'status': 'error', 'message': 'Missing data list'}, status=status.HTTP_400_BAD_REQUEST)
 
-        validated_data = serializer.validated_data
+        for bag in bags:
+            bag['plant_id'] = plant_header_id  # assign plant_id from header
+            serializer = BagDataInsertSerializer(data=bag)
+            if serializer.is_valid():
+                serializer.save()
+            else:
+                return Response({'status': 'error', 'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Insert manually using model
-        BagData.objects.create(
-            sdate=validated_data['sdate'],
-            sTime=validated_data['sTime'],
-            bagcount=validated_data['bagcount'],
-            plant=plant
-        )
+        return Response({'status': 'success', 'message': 'All BagData inserted successfully'}, status=status.HTTP_201_CREATED)
 
-        return Response({'status': 'success', 'message': 'Bag data inserted successfully'}, status=status.HTTP_201_CREATED)
     except Exception as e:
         return Response({'status': 'error', 'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)     

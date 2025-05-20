@@ -34,7 +34,7 @@ def insert_batchdata(request):
 
         for bch in batch:
             bch['plant_id'] = plant_header_id  # assign plant_id from header
-            serializer = BagDataInsertSerializer(data=bch)
+            serializer = BatchDataSerializer(data=bch)
             if serializer.is_valid():
                 serializer.save()
             else:

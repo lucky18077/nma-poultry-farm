@@ -36,6 +36,7 @@ def insert_batchdata(request):
         else:
             data = request.data.copy()
             data['plant'] = plant.id
+            print(data)
             serializer = BatchDataSerializer(data=data)
 
         if serializer.is_valid():

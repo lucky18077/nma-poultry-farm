@@ -153,21 +153,20 @@ def insert_binname(request):
         except Plant.DoesNotExist:
             return Response({'status': 'error', 'message': 'Plant ID not Match'}, status=status.HTTP_400_BAD_REQUEST)
 
-        recipeID = request.data.get('recipeID')
-        if not recipeID:
-            return Response({'status': 'error', 'message': 'recipeID is required'}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Prepare data for serializer
-        binname_data = request.data.copy()
-        binname_data['recipeID'] = recipeID
-        print(binname_data)
-
-        serializer = BinNameSerializer(data=binname_data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({'status': 'success', 'message': 'Binname inserted successfully'}, status=status.HTTP_201_CREATED)
+        if isinstance(request.data, dict) and 'data' in request.data:
+            recipes = request.data['data']
         else:
-            return Response({'status': 'error', 'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)    
+            return Response({'status': 'error', 'message': 'Missing data list'}, status=status.HTTP_400_BAD_REQUEST)
+
+        for recipe in recipes:
+            recipe['plant_id'] = plant_header_id  # assign plant_id from header
+            serializer = BinNameSerializer(data=recipe)
+            if serializer.is_valid():
+                serializer.save()
+            else:
+                return Response({'status': 'error', 'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({'status': 'success', 'message': 'All Binname inserted successfully'}, status=status.HTTP_201_CREATED)
     except Exception as e:
         return Response({'status': 'error', 'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)  
     

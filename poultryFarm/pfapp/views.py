@@ -79,6 +79,7 @@ def save_user(request):
         email = request.POST.get('email')
         password = request.POST.get('password')
         designation = request.POST.get('designation')
+        first_name = request.POST.get('first_name')
 
         # Find the only admin user
         # admin_user = User.objects.filter(designation='admin').first()
@@ -90,6 +91,7 @@ def save_user(request):
             user.email = email
             user.password = password  # (hash if needed)
             user.designation = designation
+            user.first_name = first_name
             user.reporting_manager_id=reporting_manager_id
             # user.reporting_manager = admin_user
             user.save()
@@ -99,6 +101,7 @@ def save_user(request):
                 email=email,
                 password=password,  # (hash if needed)
                 designation=designation,
+                first_name=first_name,
                 reporting_manager_id=reporting_manager_id
                 # reporting_manager=admin_user
             )

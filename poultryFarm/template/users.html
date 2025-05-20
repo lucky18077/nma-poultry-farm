@@ -25,6 +25,7 @@
                     <tr>
                         <th scope="col">S.No</th>
                         <th scope="col">User Name</th>
+                        <th scope="col">Full Name</th>
                         <th scope="col">Email</th>
                         <th scope="col">Password</th>
                         <th scope="col">Designation</th>
@@ -37,6 +38,7 @@
                     <tr>
                         <td>{{ forloop.counter }}</td>
                         <td>{{ user.username }}</td>
+                        <td>{{ user.first_name }}</td>
                         <td>{{ user.email }}</td>
                         <td>*****</td>
                         <td>
@@ -62,6 +64,7 @@
                                 data-id="{{ user.id }}" data-username="{{ user.username }}"
                                 data-email="{{ user.email }}" data-password="{{ user.password }}"
                                 data-designation="{{ user.designation }}"
+                                data-first_name="{{ user.first_name }}"
                                 data-reporting_manager_id="{{ user.reporting_manager_id }}">
                                 <iconify-icon icon="lucide:edit"></iconify-icon>
                             </button>
@@ -102,6 +105,11 @@
                                     style="color: Red;">Enter Unique Name</span> </label>
                             <input type="text" id="username" name="username" class="form-control radius-8"
                                 placeholder="Enter Name name121" required>
+                        </div>
+                        <div class="col-6 mb-20">
+                            <label class="form-label fw-semibold text-primary-light text-sm mb-8">Full Name </label>
+                            <input type="text" id="first_name" name="first_name" class="form-control radius-8"
+                                placeholder="Enter full Name " required>
                         </div>
                         <div class="col-6 mb-20">
                             <label class="form-label fw-semibold text-primary-light text-sm mb-8">Email </label>
@@ -168,6 +176,7 @@
             $("#id").val($(this).data('id'));
             $("#username").val($(this).data('username'));
             $("#email").val($(this).data('email'));
+            $("#first_name").val($(this).data('first_name'));
             $("#password").val($(this).data('password'));
             $("#designation").val($(this).data('designation')).trigger('change');
             $("#reporting_manager_id").val($(this).data('reporting_manager_id')); // 👈 Add this line
@@ -180,6 +189,7 @@
             $("#username").val("");
             $("#email").val("");
             $("#password").val("");
+            $("#first_name").val("");
             $("#designation").val("").trigger('change'); // optional if you want clean reset
             $(".btnname").html('Add User');
             $("#userModal").modal('show');

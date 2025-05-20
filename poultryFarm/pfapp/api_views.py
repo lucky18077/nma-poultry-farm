@@ -160,6 +160,7 @@ def insert_binname(request):
         # Prepare data for serializer
         binname_data = request.data.copy()
         binname_data['recipeID'] = recipeID
+        print(binname_data)
 
         serializer = BinNameSerializer(data=binname_data)
         if serializer.is_valid():

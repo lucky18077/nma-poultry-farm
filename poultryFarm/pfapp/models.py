@@ -160,6 +160,7 @@ class BatchData(models.Model):
 class MotorData(models.Model):
     sdate = models.CharField(max_length=255,null=True, blank=True)
     sTime = models.CharField(max_length=255,null=True, blank=True)
+    plant_id = models.IntegerField()
     ScrewRPM = models.FloatField(null=True, blank=True)
     hammercurrent = models.FloatField(null=True, blank=True)
     rvfrpm = models.FloatField(null=True, blank=True)
@@ -170,14 +171,15 @@ class MotorData(models.Model):
         db_table = 'motordata'    
         
 class MaterialName(models.Model): 
-    MatID = models.AutoField(primary_key=True)   
+    MatID = models.AutoField(primary_key=True) 
+    plant_id = models.IntegerField()  
     MatName = models.CharField(max_length=255)    
     class Meta:
         db_table = 'materialname' 
         
 class BinName(models.Model):
     recipeID = models.IntegerField(primary_key=True)  # Corresponds to the integer type (int)
-    
+    plant_id = models.IntegerField()
     bin1 = models.FloatField(max_length=255, blank=True, null=True)  # Corresponds to double type (float)
     bin2 = models.FloatField(max_length=255, blank=True, null=True)
     bin3 = models.FloatField(max_length=255, blank=True, null=True)
@@ -229,6 +231,7 @@ class BinName(models.Model):
 class BagData(models.Model):
     sdate = models.CharField(max_length=255, blank=True, null=True)   
     sTime = models.CharField(max_length=255, blank=True, null=True) 
+    plant_id = models.IntegerField()
     bagcount = models.IntegerField(blank=True, null=True)
     bagWT = models.FloatField(max_length=255, blank=True, null=True)
 

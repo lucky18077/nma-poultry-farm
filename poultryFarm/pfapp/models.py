@@ -99,13 +99,13 @@ class Recipemain(models.Model):
         
 class BatchData(models.Model):
     BatchID = models.IntegerField(primary_key=True)
-    stdate = models.CharField(max_length=255)
-    stTime = models.CharField(max_length=255)
+    stdate = models.CharField(max_length=255,null=True, blank=True)
+    stTime = models.CharField(max_length=255,null=True, blank=True)
     plant_id = models.IntegerField()
-    RecipeID = models.IntegerField()
-    RecipeName = models.CharField(max_length=255)
-    BatchNum = models.IntegerField()
-    TotalBatchNum = models.IntegerField()
+    RecipeID = models.IntegerField(null=True, blank=True)
+    RecipeName = models.CharField(max_length=255,null=True, blank=True)
+    BatchNum = models.IntegerField(null=True, blank=True)
+    TotalBatchNum = models.IntegerField(null=True, blank=True)
     endTime = models.CharField(max_length=255)
 
     # Bins

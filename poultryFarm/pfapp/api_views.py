@@ -111,8 +111,8 @@ def insert_motordata(request):
         return Response({'status': 'success', 'message': 'All Motor Data inserted successfully'}, status=status.HTTP_201_CREATED)
 
     except Exception as e:
-        return Response({'status': 'error', 'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)    
-    
+        return Response({'status': 'error', 'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 @api_view(['POST'])
 def insert_materialname(request):
     try:

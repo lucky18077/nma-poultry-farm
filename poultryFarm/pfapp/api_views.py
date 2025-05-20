@@ -120,25 +120,25 @@ def insert_materialname(request):
         except Plant.DoesNotExist:
             return Response({'status': 'error', 'message': 'Plant ID not Match'}, status=status.HTTP_400_BAD_REQUEST)
 
-        MatName = request.data.get('MatName')
-        if not MatName:
-            return Response({'status': 'error', 'message': 'MatName is required'}, status=status.HTTP_400_BAD_REQUEST)
-
-        material_data = {
-            'plant': plant.id,
-            'MatName': MatName
-        }
-
-        serializer = MaterialNameSerializer(data=material_data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({'status': 'success', 'message': 'Material inserted successfully'}, status=status.HTTP_201_CREATED)
+        if isinstance(request.data, dict) and 'data' in request.data:
+            recipes = request.data['data']
         else:
-            return Response({'status': 'error', 'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST) 
-       
+            return Response({'status': 'error', 'message': 'Missing data list'}, status=status.HTTP_400_BAD_REQUEST)
+
+        for recipe in recipes:
+            recipe['plant_id'] = plant_header_id  # assign plant_id from header
+            serializer = MaterialNameSerializer(data=recipe)
+            if serializer.is_valid():
+                serializer.save()
+            else:
+                return Response({'status': 'error', 'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({'status': 'success', 'message': 'All recipes inserted successfully'}, status=status.HTTP_201_CREATED)
+
     except Exception as e:
-        return Response({'status': 'error', 'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)    
-   
+        return Response({'status': 'error', 'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    
 @api_view(['POST'])
 def insert_binname(request):
     try:

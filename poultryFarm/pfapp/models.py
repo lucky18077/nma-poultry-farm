@@ -173,7 +173,7 @@ class MotorData(models.Model):
 class MaterialName(models.Model): 
     MatID = models.AutoField(primary_key=True) 
     plant_id = models.IntegerField()  
-    MatName = models.CharField(max_length=255)    
+    MatName = models.CharField(max_length=255,blank=True, null=True)    
     class Meta:
         db_table = 'materialname' 
         

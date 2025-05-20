@@ -181,11 +181,9 @@
                                     {% if request.user.is_authenticated %}
                                     <div>
                                         <h6 class="text-lg text-primary-light fw-semibold mb-2">
-                                            {{ request.user.get_designation_display }}
-                                        </h6>
-                                        <span class="text-secondary-light fw-medium text-sm">
                                             {{ request.user.first_name }}
-                                        </span>
+                                        </h6>
+                                         
                                     </div>
                                     {% endif %}
                                     <button type="button" class="hover-text-danger">

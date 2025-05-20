@@ -81,9 +81,9 @@ AUTH_USER_MODEL = 'pfapp.User'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'tmg',
+        'NAME': 'tmg_new',
         'USER': 'root',
-        'PASSWORD': 'Lucky@12345',
+        'PASSWORD': '123456',
         'HOST': '127.0.0.1',
         'PORT': '3306',
 

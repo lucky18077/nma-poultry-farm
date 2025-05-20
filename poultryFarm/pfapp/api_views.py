@@ -95,13 +95,20 @@ def insert_motordata(request):
         except Plant.DoesNotExist:
             return Response({'status': 'error', 'message': 'Plant ID not Match'}, status=status.HTTP_400_BAD_REQUEST)
 
-        data = request.data.copy()
-        serializer = MotorDataSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({'status': 'success', 'message': 'Motor data inserted successfully'}, status=status.HTTP_201_CREATED)
+        if isinstance(request.data, dict) and 'data' in request.data:
+            motors = request.data['data']
         else:
-            return Response({'status': 'error', 'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'status': 'error', 'message': 'Missing data list'}, status=status.HTTP_400_BAD_REQUEST)
+
+        for motor in motors:
+            motor['plant_id'] = plant_header_id  # assign plant_id from header
+            serializer = MotorDataSerializer(data=motor)
+            if serializer.is_valid():
+                serializer.save()
+            else:
+                return Response({'status': 'error', 'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({'status': 'success', 'message': 'All Motor Data inserted successfully'}, status=status.HTTP_201_CREATED)
 
     except Exception as e:
         return Response({'status': 'error', 'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)    

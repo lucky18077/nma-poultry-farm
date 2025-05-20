@@ -161,11 +161,16 @@ class MotorData(models.Model):
     sdate = models.CharField(max_length=255,null=True, blank=True)
     sTime = models.CharField(max_length=255,null=True, blank=True)
     plant_id = models.IntegerField()
+    motorID = models.IntegerField(primary_key=True)
     ScrewRPM = models.FloatField(null=True, blank=True)
     hammercurrent = models.FloatField(null=True, blank=True)
     rvfrpm = models.FloatField(null=True, blank=True)
     pelletcurrent = models.FloatField(null=True, blank=True)
     feederRPM = models.FloatField(null=True, blank=True)
+    hygenizerRPM = models.FloatField(null=True, blank=True)
+    crumblerfeederRPM = models.FloatField(null=True, blank=True)
+    molassesRPM = models.FloatField(null=True, blank=True)
+    blowerRPM = models.FloatField(null=True, blank=True)
 
     class Meta:
         db_table = 'motordata'    

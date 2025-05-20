@@ -159,7 +159,6 @@ def insert_binname(request):
 
         # Prepare data for serializer
         binname_data = request.data.copy()
-        binname_data['plant'] = plant.id  # ForeignKey needs id
         binname_data['recipeID'] = recipeID
 
         serializer = BinNameSerializer(data=binname_data)

@@ -88,7 +88,24 @@
                 <li class="dropdown">
                     <a href="javascript:void(0)">
                       <iconify-icon icon="hugeicons:invoice-03" class="menu-icon"></iconify-icon>
-                      <span>Custom  Reports</span> 
+                      <span>Daily  Reports</span> 
+                    </a>
+                    <ul class="sidebar-submenu">
+                      <li>
+                        <a href="{% url 'daily_batch' %}"><i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Batch  Report</a>
+                      </li>
+                      <li>
+                        <a href="{% url 'daily_recipe' %}"><i class="ri-circle-fill circle-icon text-warning-main w-auto"></i> Recipe  Report</a>
+                      </li>
+                      <li>
+                        <a href="{% url 'daily_consumption'%}"><i class="ri-circle-fill circle-icon text-info-main w-auto"></i> Consumption  Report</a>
+                      </li>
+                    </ul>
+                  </li>
+                <li class="dropdown">
+                    <a href="javascript:void(0)">
+                      <iconify-icon icon="hugeicons:invoice-03" class="menu-icon"></iconify-icon>
+                      <span>Shift Wise  Reports</span> 
                     </a>
                     <ul class="sidebar-submenu">
                       <li>
@@ -100,10 +117,29 @@
                       <li>
                         <a href="{% url 'consumption_shift'%}"><i class="ri-circle-fill circle-icon text-info-main w-auto"></i> Consumption  Report</a>
                       </li>
+                    </ul>
+                  </li>
+                  <li class="dropdown">
+                    <a href="javascript:void(0)">
+                      <iconify-icon icon="hugeicons:invoice-03" class="menu-icon"></iconify-icon>
+                      <span>Custom  Reports</span> 
+                    </a>
+                    <ul class="sidebar-submenu">
                       <li>
-                        <a href="{% url 'summary_reports'%}"><i class="ri-circle-fill circle-icon text-info-main w-auto"></i>Summary   Report</a>
+                        <a href="{% url 'custom_batch' %}"><i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Batch  Report</a>
                       </li>
-                      
+                      <li>
+                        <a href="{% url 'custom_recipe' %}"><i class="ri-circle-fill circle-icon text-warning-main w-auto"></i> Recipe  Report</a>
+                      </li>
+                      <li>
+                        <a href="{% url 'custom_consumption'%}"><i class="ri-circle-fill circle-icon text-info-main w-auto"></i> Consumption  Report</a>
+                      </li>
+                      <li>
+                        <a href="{% url 'custom_motor'%}"><i class="ri-circle-fill circle-icon text-info-main w-auto"></i> Consumption  Motor</a>
+                      </li>
+                      <!-- <li>
+                        <a href="{% url 'summary_reports'%}"><i class="ri-circle-fill circle-icon text-info-main w-auto"></i>Summary   Report</a>
+                      </li> -->
                     </ul>
                   </li>
 

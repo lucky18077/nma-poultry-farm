@@ -14,9 +14,16 @@ urlpatterns = [
     path('save-plant', views.save_plant, name='save_plant'),
     path('dashboard', views.plant_view, name='plant_view'),
     path('plants-detail/<int:plant_id>/', views.plant_detail, name='plant_detail'),
+    path('daily-batch-report', views.daily_batch, name='daily_batch'),
+    path('daily-recipe-report', views.daily_recipe, name='daily_recipe'),
+    path('daily-consumption-report', views.daily_consumption, name='daily_consumption'),
     path('batch-shift-report', views.batch_shift, name='batch_shift'),
     path('recipe-shift-report', views.recipe_shift, name='recipe_shift'),
     path('consumption-shift-report', views.consumption_shift, name='consumption_shift'),
+    path('custom-batch-report', views.custom_batch, name='custom_batch'),
+    path('custom-recipe-report', views.custom_recipe, name='custom_recipe'),
+    path('custom-consumption-report', views.custom_consumption, name='custom_consumption'),
+    path('custom-motor-report', views.custom_motor, name='custom_motor'),
     path('summary-report', views.summary_reports, name='summary_reports'),
     
     

@@ -7,7 +7,7 @@
             <h6 class="fw-semibold mb-0">Recipe Shift Report</h6>
             
             <ul class="d-flex align-items-center gap-2">
-                <form method="POST" action="{% url 'recipe_shift' %}">
+                <form method="POST" action="{% url 'custom_recipe' %}">
                     {% csrf_token %}
                     <div class="d-flex flex-wrap align-items-center gap-3">
                         <div>
@@ -22,17 +22,12 @@
                             </select>
                         </div>
                         <div>
-                            <label for="shift">Shift</label>
-                            <select name="shift" class="form-select form-select-sm w-auto" required>
-                                <option disabled {% if not request.POST.shift %}selected{% endif %}>Select Shift</option>
-                                <option value="shiftA" {% if request.POST.shift == "shiftA" %}selected{% endif %}>Shift A</option>
-                                <option value="shiftB" {% if request.POST.shift == "shiftB" %}selected{% endif %}>Shift B</option>
-                                <option value="shiftC" {% if request.POST.shift == "shiftC" %}selected{% endif %}>Shift C</option>
-                            </select>
-                        </div>
-                        <div>
                             <label for="from_datetime">From Date </label>
                             <input type="date" name="start_date" class="form-control" value="{{ request.POST.start_date|default:start_date }}" required>
+                        </div>
+                        <div>
+                            <label for="end_datetime">To Date </label>
+                            <input type="date" name="end_date" class="form-control" value="{{ request.POST.end_date|default:end_date }}" required>
                         </div>
 
                         <button type="submit" class="btn btn-sm btn-primary-600" style="margin-top: 22px;">
@@ -47,30 +42,19 @@
             <div class="text-end no-print ">
                 <button class="btn btn-sm btn-success radius-8 d-inline-flex align-items-center gap-1" id="print_recipe_report"><iconify-icon icon="solar:download-linear" class="text-xl"></iconify-icon>Download PDF</button>
             </div>
-        <!-- <div class="print-only"><h6 style="color: #61acd9;">{{  plant_name.plant_name }}</h6></div> -->
         <div class="print-only text-center"><h6 style="color: #61acd9;">{{  plant_name.plant_name }}</h6></div>
         <div class="row">
-        <div class="col-6 print-only text-left"><h6 style="color: #61acd9;">Shift Recipe Reports</h6></div>
-        <div class="col-6 print-only text-center"><h6 style="color: #61acd9;">{{ request.POST.start_date|default:start_date }}</h6></div>
+            <div class="col-4 print-only text-left"><h6 style="color: #61acd9;">Custom Recipe Reports</h6></div>
+            <div class="col-4 print-only text-center"><h6 style="color: #61acd9;">{{ request.POST.start_date|default:start_date }}</h6></div>
+            <div class="col-4 print-only text-center"><h6 style="color: #61acd9;">{{ request.POST.end_date|default:end_date }}</h6></div>
         </div>
+        
         {% if batch_actual %} 
             {% for batch in batch_actual %}
             <div class="card basic-data-table mb-5 mt-3">
                 <div class="card-header">
                     <div class="d-flex gap-3">
                     <h5 class="card-title mb-0">Recipe Name : {{ batch.RecipeName }} </h5>
-                        <h5 class="card-title mb-0">
-                            {% if shift == "shiftA" %}
-                            Shift : A
-                            {% elif shift == "shiftB" %}
-                            Shift : B
-                            {% elif shift == "shiftC" %}
-                            Shift : C
-                            {% else %}
-                            {{ shift }}
-                            {% endif %}
-                        </h5>
-                        
                     </div>
                     
                 </div>

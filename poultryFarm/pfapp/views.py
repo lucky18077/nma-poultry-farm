@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from .models import Plant,BatchData,MotorData,Recipemain,BinName,MaterialName
+from .models import Plant,BatchData,MotorData,Recipemain,BinName,MaterialName,BagData
 # from datetime import datetime, timedelta,time
 from datetime import datetime as dt, time, timedelta
 from datetime import datetime, timedelta
@@ -1709,6 +1709,54 @@ def custom_motor(request):
         'end_date': end_date,
         'is_plant_owner': request.user.designation == 'plant_owner',
     })  
+    
+@login_required
+def custom_baging(request):
+    plants = []
+    recipe_ids = []
+    bagging_data = []
+    plant_id = None
+    start_date = None
+    end_date = None 
+    plant_name = None
+
+    if request.user.is_superuser:
+        plants = Plant.objects.all()
+    elif request.user.designation == 'manufacture':
+        child_ids = request.session.get('child_ids', [])
+        plants = Plant.objects.filter(plant_owner_id__in=child_ids)
+    elif request.user.designation == 'plant_owner':
+        plant = Plant.objects.filter(plant_owner_id=request.user.id).first()
+        if plant:
+            plant_id = plant.plant_id
+            plants = [plant]
+
+    if request.method == "POST":
+        start_date = request.POST.get('start_date')
+        end_date = request.POST.get('end_date')
+        plant_id = request.POST.get('plant_id')
+        print(start_date)
+        try:
+            if plant_id and start_date and end_date:
+                plant_name = Plant.objects.filter(plant_id=plant_id).first()
+                bagging_data = BagData.objects.filter(
+                    plant_id=plant_id,
+                    sdate__range=[start_date, end_date]
+                ) 
+                print(bagging_data)
+        except Exception as e:
+            print("Error:", e)
+
+    return render(request, 'custom-bagging-report.html', {
+        'plant_name': plant_name,
+        'plants': plants,
+        'recipe_ids': recipe_ids,
+        'bagging_data': bagging_data,
+        'start_date': start_date,
+        'end_date': end_date,
+        'is_plant_owner': request.user.designation == 'plant_owner',
+    })  
+    
 @login_required
 def summary_reports(request):
     plants = Plant.objects.all()   

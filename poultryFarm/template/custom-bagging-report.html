@@ -1,0 +1,116 @@
+{% include "header.html" %}
+
+<div class="dashboard-main-body">
+
+    <div class="dashboard-main-body">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
+            <h6 class="fw-semibold mb-0">Custom Bagging Report</h6>
+
+            <ul class="d-flex align-items-center gap-2">
+                <form method="POST" action="{% url 'custom_baging' %}">
+                    {% csrf_token %}
+                    <div class="d-flex flex-wrap align-items-center gap-3">
+                        <div>
+                            <label for="from_datetime">Plant</label>
+                            <select name="plant_id" class="form-select form-select-sm w-auto" required>
+                                <option disabled {% if not request.POST.plant_id %}selected{% endif %}>Select Plant</option>
+                                {% for plant in plants %}
+                                <option value="{{ plant.plant_id }}" {% if request.POST.plant_id == plant.plant_id|stringformat:"s" %}selected{% endif %}>
+                                    {{ plant.plant_name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <label for="from_datetime">From Date </label>
+                            <input type="date" name="start_date" class="form-control" value="{{ request.POST.start_date|default:start_date }}" required>
+                        </div>
+                        <div>
+                            <label for="end_datetime">To Date </label>
+                            <input type="date" name="end_date" class="form-control" value="{{ request.POST.end_date|default:end_date }}" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-sm btn-primary-600" style="margin-top: 22px;">
+                            Submit
+                        </button>
+                    </div>
+                </form>
+            </ul>
+        </div>
+
+        <div class="print_container">
+            <div class="text-end no-print ">
+                <button class="btn btn-sm btn-success radius-8 d-inline-flex align-items-center gap-1"
+                    id="print_recipe_report"><iconify-icon icon="solar:download-linear"
+                        class="text-xl"></iconify-icon>Download PDF</button>
+            </div>
+            <div class="print-only text-center">
+                <h6 style="color: #61acd9;">{{ plant_name.plant_name }}</h6>
+            </div>
+            <div class="row">
+                <div class="col-4 print-only text-left">
+                    <h6 style="color: #61acd9;">Custom Motor Reports</h6>
+                </div>
+                <div class="col-4 print-only text-center">
+                    <h6 style="color: #61acd9;">{{ request.POST.start_date|default:start_date }}</h6>
+                </div>
+                <div class="col-4 print-only text-center">
+                    <h6 style="color: #61acd9;">{{ request.POST.end_date|default:end_date }}</h6>
+                </div>
+            </div>
+
+
+            <div class="card basic-data-table mb-5 mt-3">
+                <div class="card-body">
+                <div style="overflow-x: auto;"> 
+                    <table class="table bordered-table mb-0" >
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Bag Count</th>
+                                <th>Bag WT</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for batch in bagging_data %}
+                            <tr>
+                                <td>{{ batch.sdate   }}</td>
+                                <td>{{ batch.sTime  }}</td>
+                                <td>{{ batch.bagcount|floatformat:2 }}</td>
+                                <td>{{ batch.bagWT|floatformat:2 }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="9">No motor data found for the selected filter.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% include "footer.html" %}
+
+<script>
+    document.getElementById("print_recipe_report").addEventListener("click", function () {
+        var containers = document.getElementsByClassName("print_container");
+        var printContents = "";
+
+        for (var i = 0; i < containers.length; i++) {
+            printContents += containers[i].outerHTML;
+        }
+
+        var originalContents = document.body.innerHTML;
+
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+        location.reload();
+    });
+</script>

@@ -24,6 +24,7 @@ urlpatterns = [
     path('custom-recipe-report', views.custom_recipe, name='custom_recipe'),
     path('custom-consumption-report', views.custom_consumption, name='custom_consumption'),
     path('custom-motor-report', views.custom_motor, name='custom_motor'),
+    path('custom-bagging-report', views.custom_baging, name='custom_baging'),
     path('summary-report', views.summary_reports, name='summary_reports'),
     
     

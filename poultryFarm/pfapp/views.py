@@ -858,6 +858,91 @@ def daily_consumption(request):
     })
 
 @login_required
+def daily_motor(request):
+    plants = []
+    recipe_ids = []
+    motor_data = []
+    plant_id = None
+    start_date = None
+    plant_name = None
+
+    if request.user.is_superuser:
+        plants = Plant.objects.all()
+    elif request.user.designation == 'manufacture':
+        child_ids = request.session.get('child_ids', [])
+        plants = Plant.objects.filter(plant_owner_id__in=child_ids)
+    elif request.user.designation == 'plant_owner':
+        plant = Plant.objects.filter(plant_owner_id=request.user.id).first()
+        if plant:
+            plant_id = plant.plant_id
+            plants = [plant]
+
+    if request.method == "POST":
+        start_date = request.POST.get('start_date')
+        plant_id = request.POST.get('plant_id')
+
+        try:
+            if plant_id and start_date:
+                plant_name = Plant.objects.filter(plant_id=plant_id).first()
+                motor_data = MotorData.objects.filter(
+                    plant_id=plant_id,
+                    sdate=start_date
+                )
+        except Exception as e:
+            print("Error:", e)
+
+    return render(request, 'daily-motor-report.html', {
+        'plant_name': plant_name,
+        'plants': plants,
+        'recipe_ids': recipe_ids,
+        'motor_data': motor_data,
+        'start_date': start_date,
+        'is_plant_owner': request.user.designation == 'plant_owner',
+    }) 
+
+@login_required
+def daily_bagging(request):
+    plants = []
+    recipe_ids = []
+    bagging_data = []
+    plant_id = None
+    start_date = None
+    plant_name = None
+
+    if request.user.is_superuser:
+        plants = Plant.objects.all()
+    elif request.user.designation == 'manufacture':
+        child_ids = request.session.get('child_ids', [])
+        plants = Plant.objects.filter(plant_owner_id__in=child_ids)
+    elif request.user.designation == 'plant_owner':
+        plant = Plant.objects.filter(plant_owner_id=request.user.id).first()
+        if plant:
+            plant_id = plant.plant_id
+            plants = [plant]
+
+    if request.method == "POST":
+        start_date = request.POST.get('start_date')
+        plant_id = request.POST.get('plant_id')
+        try:
+            if plant_id and start_date:
+                plant_name = Plant.objects.filter(plant_id=plant_id).first()
+                bagging_data = BagData.objects.filter(
+                    plant_id = plant_id,
+                    sdate = start_date
+                ) 
+        except Exception as e:
+            print("Error:", e)
+
+    return render(request, 'daily-bagging-report.html', {
+        'plant_name': plant_name,
+        'plants': plants,
+        'recipe_ids': recipe_ids,
+        'bagging_data': bagging_data,
+        'start_date': start_date,
+        'is_plant_owner': request.user.designation == 'plant_owner',
+    }) 
+
+@login_required
 def batch_shift(request):
     plants = []
     start_date = None

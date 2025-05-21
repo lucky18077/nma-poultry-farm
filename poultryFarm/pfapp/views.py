@@ -1388,6 +1388,143 @@ def consumption_shift(request):
     })
 
 @login_required
+def shift_motor(request):
+    plants = []
+    recipe_ids = []
+    motor_data = []
+    plant_id = None
+    start_date = None
+    plant_name = None
+    shift = None
+
+    if request.user.is_superuser:
+        plants = Plant.objects.all()
+    elif request.user.designation == 'manufacture':
+        child_ids = request.session.get('child_ids', [])
+        plants = Plant.objects.filter(plant_owner_id__in=child_ids)
+    elif request.user.designation == 'plant_owner':
+        plant = Plant.objects.filter(plant_owner_id=request.user.id).first()
+        if plant:
+            plant_id = plant.plant_id
+            plants = [plant]
+
+    if request.method == "POST":
+        start_date = request.POST.get('start_date')
+        shift = request.POST.get('shift')
+        plant_id = request.POST.get('plant_id')
+        try:
+            if plant_id and shift:
+                # Get shift time range
+                filter_kwargs = {
+                    'plant_id': plant_id,
+                    f'{shift}__isnull': False,
+                }
+                shift_data_qs = Plant.objects.filter(**filter_kwargs)
+
+                if shift_data_qs.exists():
+                    plant = shift_data_qs.first()
+                    shift_start_time = getattr(plant, shift)
+                    start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date() 
+                    shift_start_dt = datetime.combine(start_date_obj, shift_start_time)
+                    shift_end_dt = shift_start_dt + timedelta(hours=8)
+                    raw_batch_data = MotorData.objects.filter(
+                        plant_id=plant_id,
+                        sdate=start_date  # varchar match
+                    )
+                    plant_name = Plant.objects.filter(plant_id=request.POST.get('plant_id')).first()
+                    # Fetch batch data
+                    motor_data = []
+                    for batch in raw_batch_data:
+                        try:
+                            full_datetime_str = f"{batch.sdate} {batch.sTime}"
+                            batch_datetime = datetime.strptime(full_datetime_str, "%Y-%m-%d %H:%M:%S")
+
+                            if shift_start_dt <= batch_datetime <= shift_end_dt:
+                                motor_data.append(batch)
+                        except Exception as e:
+                            print(f"Skipping invalid datetime: {batch.sdate} {batch.sTime} | Error: {e}")        
+        
+        except Exception as e:
+            print("Error:", e)
+
+    return render(request, 'shift-motor-report.html', {
+        'plant_name': plant_name,
+        'plants': plants,
+        'recipe_ids': recipe_ids,
+        'motor_data': motor_data,
+        'start_date': start_date,
+        'is_plant_owner': request.user.designation == 'plant_owner',
+    }) 
+
+@login_required
+def shift_bagging(request):
+    plants = []
+    recipe_ids = []
+    bagging_data = []
+    plant_id = None
+    start_date = None
+    plant_name = None
+    shift = None
+
+    if request.user.is_superuser:
+        plants = Plant.objects.all()
+    elif request.user.designation == 'manufacture':
+        child_ids = request.session.get('child_ids', [])
+        plants = Plant.objects.filter(plant_owner_id__in=child_ids)
+    elif request.user.designation == 'plant_owner':
+        plant = Plant.objects.filter(plant_owner_id=request.user.id).first()
+        if plant:
+            plant_id = plant.plant_id
+            plants = [plant]
+
+    if request.method == "POST":
+        start_date = request.POST.get('start_date')
+        shift = request.POST.get('shift')
+        plant_id = request.POST.get('plant_id')
+        try:
+            if plant_id and shift:
+                # Get shift time range
+                filter_kwargs = {
+                    'plant_id': plant_id,
+                    f'{shift}__isnull': False,
+                }
+                shift_data_qs = Plant.objects.filter(**filter_kwargs)
+
+                if shift_data_qs.exists():
+                    plant = shift_data_qs.first()
+                    shift_start_time = getattr(plant, shift)
+                    start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date() 
+                    shift_start_dt = datetime.combine(start_date_obj, shift_start_time)
+                    shift_end_dt = shift_start_dt + timedelta(hours=8)
+                    raw_batch_data = BagData.objects.filter(
+                        plant_id=plant_id,
+                        sdate=start_date  # varchar match
+                    )
+                    plant_name = Plant.objects.filter(plant_id=request.POST.get('plant_id')).first()
+                    # Fetch batch data
+                    bagging_data = []
+                    for batch in raw_batch_data:
+                        try:
+                            full_datetime_str = f"{batch.sdate} {batch.sTime}"
+                            batch_datetime = datetime.strptime(full_datetime_str, "%Y-%m-%d %H:%M:%S")
+
+                            if shift_start_dt <= batch_datetime <= shift_end_dt:
+                                bagging_data.append(batch)
+                        except Exception as e:
+                            print(f"Skipping invalid datetime: {batch.sdate} {batch.sTime} | Error: {e}")         
+        except Exception as e:
+            print("Error:", e)
+
+    return render(request, 'shift-bagging-report.html', {
+        'plant_name': plant_name,
+        'plants': plants,
+        'recipe_ids': recipe_ids,
+        'bagging_data': bagging_data,
+        'start_date': start_date,
+        'is_plant_owner': request.user.designation == 'plant_owner',
+    })
+
+@login_required
 def custom_batch(request):
     plants = []
     start_date=None

@@ -38,7 +38,7 @@
         </div>
     <div class="print-only text-center"><h6 style="color: #61acd9;">{{  plant_name.plant_name }}</h6></div>
     <div class="row justify-content-around"> 
-    <div class="col-6 print-only text-center"><h6 style="color: #61acd9;">Daily Batch Reports</h6></div>
+    <div class="col-6 print-only text-left"><h6 style="color: #61acd9;">Daily Batch Reports</h6></div>
     <div class="col-6 print-only text-center "><h6 style="color: #61acd9;">{{ request.POST.start_date|default:start_date }}</h6></div>
     </div>
     {% if batch_counts %}

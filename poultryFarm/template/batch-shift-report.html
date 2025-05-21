@@ -42,9 +42,12 @@
         <div class="text-end no-print ">
             <button class="btn btn-sm btn-success radius-8 d-inline-flex align-items-center gap-1" id="print_batch_report"><iconify-icon icon="solar:download-linear" class="text-xl"></iconify-icon>Download PDF</button>
         </div>
-    <!-- <div class="print-only"><h6 style="color: #61acd9;">{{  plant_name.plant_name }}</h6></div> -->
-    <div class="print-only text-center"><h6 style="color: #61acd9;">{{  plant.plant_name }}</h6></div>
-    <div class="print-only text-center"><h6 style="color: #61acd9;">Shift Wise Batch Reports</h6></div>
+    <div class="print-only text-center"><h6 style="color: #61acd9;">{{  plant_name.plant_name }}</h6></div>
+    <div class="row">
+        <div class=" col-6 print-only text-left"><h6 style="color: #61acd9;">Shift Wise Batch Reports</h6></div>
+        <div class=" col-6 print-only text-center"><h6 style="color: #61acd9;">{{ request.POST.start_date|default:start_date }}</h6></div>
+    </div>
+    
     {% if batch_counts %}
         {% for item in batch_counts %}
             <div class="card basic-data-table mb-24">

@@ -529,7 +529,7 @@ def daily_batch(request):
 
         try:
             if plant_id and start_date:
-                print(start_date)
+                plant_name = Plant.objects.filter(plant_id=request.POST.get('plant_id')).first()
                 batch_data = BatchData.objects.filter(
                     plant_id=plant_id,
                     stdate=start_date   
@@ -867,6 +867,7 @@ def batch_shift(request):
     materialName = MaterialName.objects.all()
     plant_id = None
     shift = None
+    plant_name=None
 
     # Get plants based on user role
     if request.user.is_superuser:
@@ -908,7 +909,7 @@ def batch_shift(request):
                         plant_id=plant_id,
                         stdate=start_date  # varchar match
                     )
-
+                    plant_name = Plant.objects.filter(plant_id=request.POST.get('plant_id')).first()
                     # Step 2: Filter manually using parsed datetime
                     batch_data = []
                     for batch in raw_batch_data:
@@ -995,6 +996,7 @@ def batch_shift(request):
         'materialName': materialName,
         'start_date': start_date,
         'shift': shift,
+        'plant_name':plant_name,
         'is_plant_owner': request.user.designation == 'plant_owner',
     })
      

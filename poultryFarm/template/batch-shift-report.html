@@ -28,11 +28,11 @@
                         </select>
                     </div>
                     <div>
-                        <label for="from_datetime">From DateTime</label>
+                        <label for="from_datetime">From Date </label>
                         <input type="date" name="start_date" class="form-control" value="{{ request.POST.start_date|default:start_date }}" required>
                     </div>
                     <div>
-                        <label for="end_datetime">To DateTime</label>
+                        <label for="end_datetime">To Date </label>
                         <input type="date" name="end_date" class="form-control" value="None" required>
                     </div>
 
@@ -87,23 +87,23 @@
                             <tr>
                                 <td>Set WT</td>
                                 <td></td>
-                                <td>{{ item.total_soya }}</td>
-                                <td>{{ item.total_ddgs }}</td>
-                                <td>{{ item.Oil1SetWt }}</td>
-                                <td>{{ item.Oil2SetWt }}</td>
-                                <td>{{ item.Premix1Set }}</td>
-                                <td>{{ item.Premix2Set }}</td>
+                                <td>{{ item.total_soya|floatformat:2 }}</td>
+                                <td>{{ item.total_ddgs|floatformat:2 }}</td>
+                                <td>{{ item.Oil1SetWt|floatformat:2 }}</td>
+                                <td>{{ item.Oil2SetWt|floatformat:2 }}</td>
+                                <td>{{ item.Premix1Set|floatformat:2 }}</td>
+                                <td>{{ item.Premix2Set|floatformat:2 }}</td>
                             </tr>
                             {% for allitem in item.actual_data %}
                             <tr>
-                                <td>{{ allitem.BatchNum }}</td>
-                                <td>{{ allitem.stTime }}</td>
-                                <td>{{ allitem.total_soya }}</td>
-                                <td>{{ allitem.total_ddgs }}</td>
-                                <td>{{ allitem.Oil1SetWt }}</td>
-                                <td>{{ allitem.Oil2SetWt }}</td>
-                                <td>{{ allitem.Premix1Set }}</td>
-                                <td>{{ allitem.Premix2Set }}</td>
+                                <td>{{ allitem.BatchNum|floatformat:2 }}</td>
+                                <td>{{ allitem.stTime|floatformat:2 }}</td>
+                                <td>{{ allitem.total_soya|floatformat:2 }}</td>
+                                <td>{{ allitem.total_ddgs|floatformat:2 }}</td>
+                                <td>{{ allitem.Oil1SetWt|floatformat:2 }}</td>
+                                <td>{{ allitem.Oil2SetWt|floatformat:2 }}</td>
+                                <td>{{ allitem.Premix1Set|floatformat:2 }}</td>
+                                <td>{{ allitem.Premix2Set|floatformat:2 }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>

@@ -29,12 +29,12 @@
                         </select>
                     </div>
                     <div>
-                        <label for="from_datetime">From DateTime</label>
+                        <label for="from_datetime">From Date </label>
                         <input type="date" name="start_date" class="form-control"
                             value="{{ request.POST.start_date|default:start_date }}" required>
                     </div>
                     <div>
-                        <label for="end_datetime">To DateTime</label>
+                        <label for="end_datetime">To Date </label>
                         <input type="date" name="end_date" class="form-control" value="{{ request.POST.end_date|default:end_date }}" required>
                     </div>
 

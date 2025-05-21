@@ -1770,6 +1770,7 @@ def summary_reports(request):
     plant_id = request.POST.get('plant_id')
     hammer_stats = pellet_stats = {}
     motor_data = []
+    plant_name=None
     
      # Get plants based on user role
     if request.user.is_superuser:
@@ -1785,30 +1786,15 @@ def summary_reports(request):
     if request.method == "POST":
         start_date = request.POST.get('start_date')
         end_date = request.POST.get('end_date')
-        shift = request.POST.get('shift')
-        plant_id = request.POST.get('plant_id')
+        plant_id = request.POST.get('plant_id')    
 
     try:
-        if plant_id and shift:
-            filter_kwargs = {
-                'plant_id': plant_id,
-                f'{shift}__isnull': False,
-            }
-            shift_data_qs = Plant.objects.filter(**filter_kwargs)
-
-            if shift_data_qs.exists():
-                plant = shift_data_qs.first()
-                shift_start_time = getattr(plant, shift)
-                shift_start_dt = datetime.combine(datetime.today(), shift_start_time)
-                shift_end_dt = shift_start_dt + timedelta(hours=8)
-
-                shift_start_str = shift_start_dt.strftime("%H:%M:%S")
-                shift_end_str = shift_end_dt.strftime("%H:%M:%S")
-
+            if plant_id and start_date and end_date:
+                plant_name = Plant.objects.filter(plant_id=request.POST.get('plant_id')).first()
                 batch_data = BatchData.objects.filter(
                     plant_id=plant_id,
-                    stTime__range=(shift_start_str, shift_end_str)
-                )
+                    stdate__range=(start_date, end_date)
+                )  
 
                 # Calculate recipe weight
                 recipe_weight_expr = ExpressionWrapper(
@@ -1917,6 +1903,7 @@ def summary_reports(request):
         'pellet_stats': pellet_stats,
         'from_datetime': from_date_str,
         'to_datetime': to_date_str,
+        'plant_name':plant_name,
     })
     
     

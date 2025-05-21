@@ -50,7 +50,7 @@
                             <button
                                 class="w-32-px h-32-px bg-warning-focus text-warning-main rounded-circle d-inline-flex align-items-center justify-content-center edit-plant"
                                 data-id="{{ plant.id }}" data-plant_name="{{ plant.plant_name }}" data-profile_image="{{ plant.profile_image }}"
-                                data-plant_owner_id="{{ plant.plant_owner_id }}" data-shiftA="{{ plant.shiftA }}">
+                                data-plant_owner_id="{{ plant.plant_owner_id }}" data-shift="{{ plant.shiftA }}">
                                 <iconify-icon icon="lucide:edit"></iconify-icon>
                             </button>
                         </td>
@@ -129,7 +129,31 @@
     $(document).on("click", ".edit-plant", function () {
         $("#id").val($(this).data('id'));
         $("#plant_name").val($(this).data('plant_name'));
-        $("#shiftA").val($(this).data('shiftA'));
+       let shiftA = $(this).data('shift');  // Example: "6 a.m." or "06:00:00"
+        if (shiftA) {
+            let formatted = "";
+
+            // Case 1: match "6 a.m." or "2 p.m." etc.
+            let matchAP = shiftA.toLowerCase().match(/(\d{1,2})\s*(a|p)\.m\./);
+            if (matchAP) {
+                let hour = parseInt(matchAP[1]);
+                let period = matchAP[2];
+
+                if (period === 'p' && hour < 12) hour += 12;
+                if (period === 'a' && hour === 12) hour = 0;
+
+                formatted = hour.toString().padStart(2, '0') + ':00';
+            } 
+            // Case 2: already in HH:MM:SS format
+            else if (shiftA.match(/^\d{2}:\d{2}:\d{2}$/)) {
+                formatted = shiftA.substring(0, 5);  // convert "06:00:00" -> "06:00"
+            }
+
+            // Set the formatted value
+            if (formatted) {
+                $("#shiftA").val(formatted);
+            }
+        }
         $("#plant_owner_id").val($(this).data('plant_owner_id'));
         var imagePath = $(this).data('profile_image');  
             if (imagePath) {

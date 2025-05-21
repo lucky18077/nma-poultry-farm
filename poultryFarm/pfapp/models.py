@@ -33,6 +33,7 @@ class Plant(models.Model):
     shiftA = models.TimeField(null=True, blank=True)
     shiftB = models.TimeField(null=True, blank=True)
     shiftC = models.TimeField(null=True, blank=True)
+    profile_image = models.CharField(max_length=255, null=True, blank=True)
     plant_owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)  # 👈 ForeignKey to User
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -46,7 +46,7 @@
                         <td>
                             <button
                                 class="w-32-px h-32-px bg-warning-focus text-warning-main rounded-circle d-inline-flex align-items-center justify-content-center edit-plant"
-                                data-id="{{ plant.id }}" data-plant_name="{{ plant.plant_name }}"
+                                data-id="{{ plant.id }}" data-plant_name="{{ plant.plant_name }}" data-profile_image="{{ plant.profile_image }}"
                                 data-plant_owner_id="{{ plant.plant_owner_id }}" data-shiftA="{{ plant.shiftA }}">
                                 <iconify-icon icon="lucide:edit"></iconify-icon>
                             </button>
@@ -72,7 +72,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-24">
-                <form id="userForm" method="POST" action="{% url 'save_plant' %}">
+                <form id="userForm" method="POST" action="{% url 'save_plant' %}"  enctype="multipart/form-data">
                     {% csrf_token %}
                     <input type="hidden" id="id" name="id">
                     <div class="row">
@@ -92,6 +92,13 @@
                             <input type="text" id="plant_name" name="plant_name" class="form-control radius-8"
                                 placeholder="Enter Plant Name " required>
                         </div>
+                        <div class="col-6 mb-20">
+                            <label class="form-label fw-semibold text-primary-light text-sm mb-8">Profile Photo </label>
+                            <input type="file" id="profile_image" name="profile_image" class="form-control radius-8"
+                               accept="image/*"  >
+                            <img id="profile_image_preview" src="" alt="User Image" style="max-width: 100px; display: none; margin-top: 8px;" />  
+                        </div>
+
                         <div class="col-6 mb-20">
                             <label class="form-label fw-semibold text-primary-light text-sm mb-8">Shift Start
                                 Time</label>
@@ -115,11 +122,18 @@
 {% include "footer.html" %}
 
 <script>
+     $("#profile_image_preview").hide();
     $(document).on("click", ".edit-plant", function () {
         $("#id").val($(this).data('id'));
         $("#plant_name").val($(this).data('plant_name'));
         $("#shiftA").val($(this).data('shiftA'));
         $("#plant_owner_id").val($(this).data('plant_owner_id'));
+        var imagePath = $(this).data('profile_image');  
+            if (imagePath) {
+                $("#profile_image_preview").attr('src', '/static/' + imagePath).show();
+            } else {
+                $("#profile_image_preview").hide();
+            }
         $(".btnname").text('Edit Plant');
         $("#plantModal").modal('show');
     });
@@ -129,6 +143,7 @@
         $("#plant_name").val("");
         $("#plant_owner_id").val("");
         $("#shiftA").val("");
+        $("#profile_image").val("");
         $(".btnname").html('Add Plant');
         $("#plantModal").modal('show');
     });

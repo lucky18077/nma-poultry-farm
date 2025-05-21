@@ -144,6 +144,9 @@ def save_plant(request):
         plant_name = request.POST.get('plant_name')
         plant_owner_id = request.POST.get('plant_owner_id')
         shiftA_start_str = request.POST.get('shiftA')
+        profile_photo = request.FILES.get('profile_image') 
+        upload_dir = os.path.join(settings.BASE_DIR, 'static', 'asset', 'plant_images')
+        os.makedirs(upload_dir, exist_ok=True)
 
         # Validation
         if not plant_owner_id or plant_owner_id.strip() == "":
@@ -169,16 +172,31 @@ def save_plant(request):
             plant.shiftA = shiftA_start.time()
             plant.shiftB = shiftB_start.time()
             plant.shiftC = shiftC_start.time()
+            if profile_photo:
+                image_path = os.path.join(upload_dir, profile_photo.name)
+                with open(image_path, 'wb+') as f:
+                    for chunk in profile_photo.chunks():
+                        f.write(chunk)
+                plant.profile_image = f"asset/plant_images/{profile_photo.name}"  
             plant.save()
         else:
-            # Generate unique plant_id
+            # === Create new plant with unique ID ===
             while True:
                 now = datetime.now().strftime("%H%M%S")
                 random_number = random.randint(1000, 9999)
                 generated_plant_id = f"{now}{random_number}"
-
                 if not Plant.objects.filter(plant_id=generated_plant_id).exists():
                     break
+
+            image_path = None
+            if profile_photo:
+                image_path = os.path.join(upload_dir, profile_photo.name)
+                with open(image_path, 'wb+') as f:
+                    for chunk in profile_photo.chunks():
+                        f.write(chunk)
+                image_relative_path = f"asset/plant_images/{profile_photo.name}"
+            else:
+                image_relative_path = None
 
             Plant.objects.create(
                 plant_id=generated_plant_id,
@@ -186,7 +204,8 @@ def save_plant(request):
                 plant_owner_id=plant_owner_id,
                 shiftA=shiftA_start.time(),
                 shiftB=shiftB_start.time(),
-                shiftC=shiftC_start.time()
+                shiftC=shiftC_start.time(),
+                profile_image=image_relative_path
             )
 
         messages.success(request, "Plant saved successfully!")

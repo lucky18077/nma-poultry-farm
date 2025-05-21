@@ -58,7 +58,7 @@ def contact(request):
 
 # Profile views.
 @login_required
-def profile(request):
+def profile(request): 
     return render(request, 'profile.html', {'user': request.user})
 
 # Logout views.

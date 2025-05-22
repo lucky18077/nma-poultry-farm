@@ -18,7 +18,7 @@
                     </select>
                     {% endif %}
                     <div>
-                        <input type="date" name="select_date" class="form-control" required>
+                        <input type="date" name="select_date" class="form-control" value="{{ request.POST.select_date|default:select_date }}" required>
                     </div>
 
                     <!-- Button to submit the form -->

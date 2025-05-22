@@ -239,7 +239,7 @@ def dashboard(request):
     totalBatch = None
     recipename = None
     motor_data = None
-    selected_datetime = date.today().isoformat()
+    select_date = date.today().isoformat()
     plants = []
     plant_id = None
     hammer_stats = None
@@ -337,7 +337,7 @@ def dashboard(request):
         'totalBatch': totalBatch,
         'motor_data': motor_data,
         'plants': plants,
-        'selected_datetime': selected_datetime,
+        'select_date':select_date,
         'hammer_stats': hammer_stats,
         'pellet_stats': pellet_stats,
         'is_plant_owner': request.user.designation == 'plant_owner',

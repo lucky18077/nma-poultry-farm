@@ -16,16 +16,25 @@ def plant_list_api(request):
 @api_view(['POST'])
 def insert_batchdata(request):
     try:
+        # Get headers
         plant_header_id = request.headers.get('Plant-ID') or request.headers.get('plant_id')
-        print('Received Plant ID:', plant_header_id)
+        plant_key = request.headers.get('plant_key')
+        print(plant_header_id)
 
+        # Validate presence of plant_id and plant_key
         if not plant_header_id:
-            return Response({'status': 'error', 'message': 'Plant ID not found in Header'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'status': 'error', 'message': 'Plant ID not found in header'}, status=status.HTTP_400_BAD_REQUEST)
+        if not plant_key:
+            return Response({'status': 'error', 'message': 'Plant key not found in header'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            plant = Plant.objects.get(plant_id=plant_header_id)
+            plant = Plant.objects.get(
+                plant_id=plant_header_id,
+                plant_status=0,           
+                plant_key=plant_key       
+            )
         except Plant.DoesNotExist:
-            return Response({'status': 'error', 'message': 'Plant ID not Match'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'status': 'error', 'message': 'Plant ID, Status or Key not valid'}, status=status.HTTP_403_FORBIDDEN)
 
         if isinstance(request.data, dict) and 'data' in request.data:
             batch = request.data['data']
@@ -40,7 +49,7 @@ def insert_batchdata(request):
             else:
                 return Response({'status': 'error', 'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response({'status': 'success', 'message': 'All recipes inserted successfully'}, status=status.HTTP_201_CREATED)
+        return Response({'status': 'success', 'message': 'All Batch Data inserted successfully'}, status=status.HTTP_201_CREATED)
 
     except Exception as e:
         return Response({'status': 'error', 'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

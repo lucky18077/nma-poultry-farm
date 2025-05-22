@@ -18,6 +18,7 @@ from django.utils.dateparse import parse_datetime
 from django.db.models import Q
 User = get_user_model()
 import os
+from datetime import date
 from django.conf import settings
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
@@ -515,14 +516,14 @@ def plant_detail(request, plant_id):
 @login_required
 def daily_batch(request):
     plants = []
-    start_date = None
+    start_date = date.today().isoformat()
     batch_data = []
     recipe_ids = []
     batch_counts = []
     materialName = MaterialName.objects.all()
     plant_id = None
     plant_name = None
-
+    
     # Get plants based on user role
     if request.user.is_superuser:
         plants = Plant.objects.all()
@@ -617,7 +618,7 @@ def daily_batch(request):
         'recipe_ids': recipe_ids,
         'batch_counts': batch_counts,
         'materialName': materialName,
-        'start_date': start_date,
+        'start_date': date.today().isoformat(),
         'is_plant_owner': request.user.designation == 'plant_owner',
     })
 
@@ -628,7 +629,7 @@ def daily_recipe(request):
     batch_data = []
     batch_actual = []
     plant_id = None
-    start_date = None
+    start_date = date.today().isoformat()
     plant_name = None
 
     if request.user.is_superuser:
@@ -740,8 +741,7 @@ def daily_consumption(request):
     batch_data = []
     recipe_ids = []
     plant_name = None
-    start_date = None
-
+    start_date = date.today().isoformat()
     # Actual totals
     total_soya = total_ddgs = total_maize = total_mbm = total_mdoc = total_oil = 0
 
@@ -875,7 +875,7 @@ def daily_motor(request):
     recipe_ids = []
     motor_data = []
     plant_id = None
-    start_date = None
+    start_date = date.today().isoformat()
     plant_name = None
 
     if request.user.is_superuser:
@@ -918,7 +918,7 @@ def daily_bagging(request):
     recipe_ids = []
     bagging_data = []
     plant_id = None
-    start_date = None
+    start_date = date.today().isoformat()
     plant_name = None
 
     if request.user.is_superuser:
@@ -957,7 +957,7 @@ def daily_bagging(request):
 @login_required
 def batch_shift(request):
     plants = []
-    start_date = None
+    start_date = date.today().isoformat()
     batch_data = []
     recipe_ids = []
     batch_counts = []
@@ -1104,7 +1104,7 @@ def recipe_shift(request):
     batch_data = []
     batch_actual = []
     plant_id = None
-    start_date=None
+    start_date = date.today().isoformat()
     shift=None
     plant_name=None
 
@@ -1243,7 +1243,7 @@ def consumption_shift(request):
     recipe_ids = []
     plant_name=None
     # Form values
-    start_date = None
+    start_date = date.today().isoformat()
     shift = None
 
     # Actual totals
@@ -1405,7 +1405,7 @@ def shift_motor(request):
     recipe_ids = []
     motor_data = []
     plant_id = None
-    start_date = None
+    start_date = date.today().isoformat()
     plant_name = None
     shift = None
 
@@ -1474,7 +1474,7 @@ def shift_bagging(request):
     recipe_ids = []
     bagging_data = []
     plant_id = None
-    start_date = None
+    start_date = date.today().isoformat()
     plant_name = None
     shift = None
 

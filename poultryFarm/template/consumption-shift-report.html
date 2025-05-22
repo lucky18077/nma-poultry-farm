@@ -11,7 +11,6 @@
                     <div>
                         <label for="from_datetime">Plant</label>
                         <select name="plant_id" class="form-select form-select-sm w-auto" required>
-                            <option disabled {% if not request.POST.plant_id %}selected{% endif %}>Select Plant</option>
                             {% for plant in plants %}
                             <option value="{{ plant.plant_id }}" {% if request.POST.plant_id == plant.plant_id|stringformat:"s" %}selected{% endif %}>
                                 {{ plant.plant_name }}
@@ -22,7 +21,6 @@
                     <div>
                         <label for="shift">Shift</label>
                         <select name="shift" class="form-select form-select-sm w-auto" required>
-                            <option disabled {% if not request.POST.shift %}selected{% endif %}>Select Shift</option>
                             <option value="shiftA" {% if request.POST.shift == "shiftA" %}selected{% endif %}>Shift A</option>
                             <option value="shiftB" {% if request.POST.shift == "shiftB" %}selected{% endif %}>Shift B</option>
                             <option value="shiftC" {% if request.POST.shift == "shiftC" %}selected{% endif %}>Shift C</option>

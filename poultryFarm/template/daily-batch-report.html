@@ -10,7 +10,6 @@
                     <div>
                         <label for="from_datetime">Plant</label>
                         <select name="plant_id" class="form-select form-select-sm w-auto" required>
-                            <option disabled {% if not request.POST.plant_id %}selected{% endif %}>Select Plant</option>
                             {% for plant in plants %}
                             <option value="{{ plant.plant_id }}" {% if request.POST.plant_id == plant.plant_id|stringformat:"s" %}selected{% endif %}>
                                 {{ plant.plant_name }}

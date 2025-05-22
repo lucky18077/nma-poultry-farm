@@ -8,6 +8,7 @@ from .models import Plant,BatchData,MotorData,Recipemain,BinName,MaterialName,Ba
 from datetime import datetime as dt, time, timedelta
 from datetime import datetime, timedelta
 import random
+import string
 from django.shortcuts import render, get_object_or_404
 from django.db.models import Avg, Min, Max,Count,F, ExpressionWrapper, FloatField,OuterRef, Subquery,Sum
 from django.db.models.functions import Cast
@@ -144,6 +145,7 @@ def save_plant(request):
         plant_name = request.POST.get('plant_name')
         plant_owner_id = request.POST.get('plant_owner_id')
         shiftA_start_str = request.POST.get('shiftA')
+        plant_status = request.POST.get('plant_status')
         profile_photo = request.FILES.get('profile_image') 
         upload_dir = os.path.join(settings.BASE_DIR, 'static', 'asset', 'plant_images')
         os.makedirs(upload_dir, exist_ok=True)
@@ -168,6 +170,7 @@ def save_plant(request):
         if plant_id:
             plant = Plant.objects.get(id=plant_id)
             plant.plant_name = plant_name
+            plant.plant_status = plant_status
             plant.plant_owner_id = plant_owner_id
             plant.shiftA = shiftA_start.time()
             plant.shiftB = shiftB_start.time()
@@ -187,7 +190,14 @@ def save_plant(request):
                 generated_plant_id = f"{now}{random_number}"
                 if not Plant.objects.filter(plant_id=generated_plant_id).exists():
                     break
-
+             
+            def generate_unique_plant_key():
+                charset = string.ascii_letters + string.digits + string.punctuation
+                while True:
+                    generated_plant_key = ''.join(random.choices(charset, k=25))
+                    if not Plant.objects.filter(plant_key=generated_plant_key).exists():
+                        return generated_plant_key  
+                    
             image_path = None
             if profile_photo:
                 image_path = os.path.join(upload_dir, profile_photo.name)
@@ -200,7 +210,9 @@ def save_plant(request):
 
             Plant.objects.create(
                 plant_id=generated_plant_id,
+                plant_key=generate_unique_plant_key(),
                 plant_name=plant_name,
+                plant_status=plant_status,
                 plant_owner_id=plant_owner_id,
                 shiftA=shiftA_start.time(),
                 shiftB=shiftB_start.time(),

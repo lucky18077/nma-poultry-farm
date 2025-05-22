@@ -24,7 +24,7 @@
             <table class="table bordered-table mb-0" id="dataTable" data-page-length='10'>
                 <thead>
                     <tr>
-                        <th scope="col">S.No</th>
+                        <!-- <th scope="col">S.No</th> -->
                         <th scope="col">Plant id</th>
                         <th scope="col">Plant Profile</th>
                         <th scope="col">Plant Owner</th>
@@ -32,13 +32,14 @@
                         <th scope="col">Shift A</th>
                         <th scope="col">Shift B</th>
                         <th scope="col">Shift C</th>
+                        <th scope="col">Plant key</th>
                         <th scope="col">Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for plant in plants %}
                     <tr>
-                        <td>{{ forloop.counter }}</td>
+                        <!-- <td>{{ forloop.counter }}</td> -->
                         <td>{{ plant.plant_id }}</td>
                         <td><img  src="{% static plant.profile_image %}" alt="User Image" style="max-width: 100px; height: 50px;" />  </td>
                         <td>{{ plant.plant_owner.username }}</td>
@@ -46,11 +47,12 @@
                         <td>{{ plant.shiftA }}</td>
                         <td>{{ plant.shiftB }}</td>
                         <td>{{ plant.shiftC }}</td>
+                        <td>{{ plant.plant_key }}</td>
                         <td>
                             <button
                                 class="w-32-px h-32-px bg-warning-focus text-warning-main rounded-circle d-inline-flex align-items-center justify-content-center edit-plant"
                                 data-id="{{ plant.id }}" data-plant_name="{{ plant.plant_name }}" data-profile_image="{{ plant.profile_image }}"
-                                data-plant_owner_id="{{ plant.plant_owner_id }}" data-shift="{{ plant.shiftA }}">
+                                data-plant_owner_id="{{ plant.plant_owner_id }}" data-shift="{{ plant.shiftA }}" data-plant_status="{{ plant.plant_status }}">
                                 <iconify-icon icon="lucide:edit"></iconify-icon>
                             </button>
                         </td>
@@ -96,23 +98,33 @@
                                 placeholder="Enter Plant Name " required>
                         </div>
                         <div class="col-6 mb-20">
-                            <label class="form-label fw-semibold text-primary-light text-sm mb-8">Profile Photo </label>
-                            <input type="file" id="profile_image" name="profile_image" class="form-control radius-8"
-                               accept="image/*"  >
-                            <img id="profile_image_preview" src="" alt="User Image" style="max-width: 100px; display: none; margin-top: 8px;" />  
-                        </div>
-
-                        <div class="col-6 mb-20">
                             <label class="form-label fw-semibold text-primary-light text-sm mb-8">Shift Start
                                 Time</label>
                             <input type="time" id="shiftA" name="shiftA" class="form-control radius-8"
                                 placeholder="Enter Shift Start Time" required>
                         </div>
+                        <div class="col-6 mb-20">
+                            <label class="form-label fw-semibold text-primary-light text-sm mb-8">Plant Status
+                            </label>
+                            <select id="plant_status" name="plant_status" class="form-control radius-8 form-select"
+                                required>
+                                <option value="0">Active</option>
+                                <option value="1">In-Active</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-6 mb-20">
+                            <label class="form-label fw-semibold text-primary-light text-sm mb-8">Profile Photo </label>
+                            <input type="file" id="profile_image" name="profile_image" class="form-control radius-8"
+                               accept="image/*"  >
+                            <img id="profile_image_preview" src="" alt="User Image" style="max-width: 100px; display: none; margin-top: 8px;" />  
+                        </div>
+                        
 
                         <div class="d-flex align-items-center justify-content-center gap-3 mt-24">
                             <button type="submit"
                                 class="btn btn-primary btn-sm border border-primary-600 text-md px-24 py-12 radius-8 btnname">
-                                Add Plant
+                               Save
                             </button>
                         </div>
                     </div>
@@ -155,6 +167,7 @@
             }
         }
         $("#plant_owner_id").val($(this).data('plant_owner_id'));
+        $("#plant_status").val($(this).data('plant_status'));
         var imagePath = $(this).data('profile_image');  
             if (imagePath) {
                 $("#profile_image_preview").attr('src', '/static/' + imagePath).show();
@@ -171,6 +184,7 @@
         $("#plant_owner_id").val("");
         $("#shiftA").val("");
         $("#profile_image").val("");
+        $("#plant_status").val("");
         $(".btnname").html('Add Plant');
         $("#plantModal").modal('show');
     });

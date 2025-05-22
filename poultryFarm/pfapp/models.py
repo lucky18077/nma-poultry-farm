@@ -30,6 +30,8 @@ class User(AbstractUser):
 class Plant(models.Model):
     plant_id = models.CharField(max_length=50, unique=True, editable=False)
     plant_name = models.CharField(max_length=255)
+    plant_key = models.CharField(max_length=255)
+    plant_status = models.IntegerField(max_length=2)
     shiftA = models.TimeField(null=True, blank=True)
     shiftB = models.TimeField(null=True, blank=True)
     shiftC = models.TimeField(null=True, blank=True)

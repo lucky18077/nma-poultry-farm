@@ -1539,8 +1539,8 @@ def shift_bagging(request):
 @login_required
 def custom_batch(request):
     plants = []
-    start_date=None
-    end_date=None
+    start_date= date.today().isoformat()
+    end_date= date.today().isoformat()
     batch_data = []
     recipe_ids = []
     batch_counts = []
@@ -1655,8 +1655,8 @@ def custom_recipe(request):
     batch_data = []
     batch_actual = []
     plant_id = None
-    start_date=None
-    end_date=None 
+    start_date= date.today().isoformat()
+    end_date= date.today().isoformat() 
     plant_name=None
 
     # Get plants based on user role
@@ -1769,8 +1769,8 @@ def custom_consumption(request):
     recipe_ids = []
     plant_name=None
     # Form values
-    start_date = None
-    end_date = None
+    start_date = date.today().isoformat()
+    end_date = date.today().isoformat()
 
     # Actual totals
     total_soya = total_ddgs = total_maize = total_mbm = total_mdoc = total_oil = 0
@@ -1907,8 +1907,8 @@ def custom_motor(request):
     motor_data = []
     plant_id = None
     start_date = None
-    end_date = None 
-    plant_name = None
+    end_date = date.today().isoformat() 
+    plant_name = date.today().isoformat()
 
     if request.user.is_superuser:
         plants = Plant.objects.all()
@@ -1952,8 +1952,8 @@ def custom_baging(request):
     recipe_ids = []
     bagging_data = []
     plant_id = None
-    start_date = None
-    end_date = None 
+    start_date = date.today().isoformat()
+    end_date = date.today().isoformat() 
     plant_name = None
 
     if request.user.is_superuser:
@@ -1997,9 +1997,10 @@ def custom_baging(request):
 def summary_reports(request):
     plants = Plant.objects.all()   
     plant = None
-    start_date = end_date = None
+    start_date = date.today().isoformat()
+    end_date = date.today().isoformat()
     batch_data = BatchData.objects.none()
-    start_date = finish_date = None
+     
     from_date_str = to_date_str = None
     unique_recipe_data = None
     shift = request.POST.get('shift')

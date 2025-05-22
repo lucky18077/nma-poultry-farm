@@ -239,7 +239,7 @@ def dashboard(request):
     totalBatch = None
     recipename = None
     motor_data = None
-    selected_datetime = None
+    selected_datetime = date.today().isoformat()
     plants = []
     plant_id = None
     hammer_stats = None

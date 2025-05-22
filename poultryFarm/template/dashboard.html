@@ -12,7 +12,6 @@
                     <!-- Dropdown to select plant -->
                     {% if not is_plant_owner %}
                     <select name="plant_id" class="form-select form-select-sm w-auto" required>
-                        <option selected disabled>Select Plant</option>
                         {% for plant in plants %}
                         <option value="{{ plant.plant_id }}">{{ plant.plant_name }}</option>
                         {% endfor %}

@@ -19,7 +19,6 @@ def insert_batchdata(request):
         # Get headers
         plant_header_id = request.headers.get('Plant-ID') or request.headers.get('plant_id')
         plant_key = request.headers.get('plant_key')
-        print(plant_header_id)
 
         # Validate presence of plant_id and plant_key
         if not plant_header_id:
@@ -58,16 +57,24 @@ def insert_batchdata(request):
 @api_view(['POST'])
 def insert_recipe(request):
     try:
+        # Get headers
         plant_header_id = request.headers.get('Plant-ID') or request.headers.get('plant_id')
-        print('Received Plant ID:', plant_header_id)
+        plant_key = request.headers.get('plant_key')
 
+        # Validate presence of plant_id and plant_key
         if not plant_header_id:
-            return Response({'status': 'error', 'message': 'Plant ID not found in Header'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'status': 'error', 'message': 'Plant ID not found in header'}, status=status.HTTP_400_BAD_REQUEST)
+        if not plant_key:
+            return Response({'status': 'error', 'message': 'Plant key not found in header'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            plant = Plant.objects.get(plant_id=plant_header_id)
+            plant = Plant.objects.get(
+                plant_id=plant_header_id,
+                plant_status=0,           
+                plant_key=plant_key       
+            )
         except Plant.DoesNotExist:
-            return Response({'status': 'error', 'message': 'Plant ID not Match'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'status': 'error', 'message': 'Plant ID, Status or Key not valid'}, status=status.HTTP_403_FORBIDDEN)
 
         if isinstance(request.data, dict) and 'data' in request.data:
             recipes = request.data['data']
@@ -91,16 +98,24 @@ def insert_recipe(request):
 @api_view(['POST'])
 def insert_motordata(request):
     try:
+        # Get headers
         plant_header_id = request.headers.get('Plant-ID') or request.headers.get('plant_id')
-        print('Received Plant ID:', plant_header_id)
+        plant_key = request.headers.get('plant_key')
 
+        # Validate presence of plant_id and plant_key
         if not plant_header_id:
-            return Response({'status': 'error', 'message': 'Plant ID not found in Header'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'status': 'error', 'message': 'Plant ID not found in header'}, status=status.HTTP_400_BAD_REQUEST)
+        if not plant_key:
+            return Response({'status': 'error', 'message': 'Plant key not found in header'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            plant = Plant.objects.get(plant_id=plant_header_id)
+            plant = Plant.objects.get(
+                plant_id=plant_header_id,
+                plant_status=0,           
+                plant_key=plant_key       
+            )
         except Plant.DoesNotExist:
-            return Response({'status': 'error', 'message': 'Plant ID not Match'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'status': 'error', 'message': 'Plant ID, Status or Key not valid'}, status=status.HTTP_403_FORBIDDEN)
 
         if isinstance(request.data, dict) and 'data' in request.data:
             motors = request.data['data']
@@ -123,16 +138,24 @@ def insert_motordata(request):
 @api_view(['POST'])
 def insert_materialname(request):
     try:
+        # Get headers
         plant_header_id = request.headers.get('Plant-ID') or request.headers.get('plant_id')
-        print('Received Plant ID:', plant_header_id)
+        plant_key = request.headers.get('plant_key')
 
+        # Validate presence of plant_id and plant_key
         if not plant_header_id:
-            return Response({'status': 'error', 'message': 'Plant ID not found in Header'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'status': 'error', 'message': 'Plant ID not found in header'}, status=status.HTTP_400_BAD_REQUEST)
+        if not plant_key:
+            return Response({'status': 'error', 'message': 'Plant key not found in header'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            plant = Plant.objects.get(plant_id=plant_header_id)
+            plant = Plant.objects.get(
+                plant_id=plant_header_id,
+                plant_status=0,           
+                plant_key=plant_key       
+            )
         except Plant.DoesNotExist:
-            return Response({'status': 'error', 'message': 'Plant ID not Match'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'status': 'error', 'message': 'Plant ID, Status or Key not valid'}, status=status.HTTP_403_FORBIDDEN)
 
         if isinstance(request.data, dict) and 'data' in request.data:
             recipes = request.data['data']
@@ -156,16 +179,24 @@ def insert_materialname(request):
 @api_view(['POST'])
 def insert_binname(request):
     try:
+        # Get headers
         plant_header_id = request.headers.get('Plant-ID') or request.headers.get('plant_id')
-        print('Received Plant ID:', plant_header_id)
+        plant_key = request.headers.get('plant_key')
 
+        # Validate presence of plant_id and plant_key
         if not plant_header_id:
-            return Response({'status': 'error', 'message': 'Plant ID not found in Header'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'status': 'error', 'message': 'Plant ID not found in header'}, status=status.HTTP_400_BAD_REQUEST)
+        if not plant_key:
+            return Response({'status': 'error', 'message': 'Plant key not found in header'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            plant = Plant.objects.get(plant_id=plant_header_id)
+            plant = Plant.objects.get(
+                plant_id=plant_header_id,
+                plant_status=0,           
+                plant_key=plant_key       
+            )
         except Plant.DoesNotExist:
-            return Response({'status': 'error', 'message': 'Plant ID not Match'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'status': 'error', 'message': 'Plant ID, Status or Key not valid'}, status=status.HTTP_403_FORBIDDEN)
 
         if isinstance(request.data, dict) and 'data' in request.data:
             recipes = request.data['data']
@@ -187,16 +218,24 @@ def insert_binname(request):
 @api_view(['POST'])
 def insert_bagdata(request):   
     try:
+        # Get headers
         plant_header_id = request.headers.get('Plant-ID') or request.headers.get('plant_id')
-        print('Received Plant ID:', plant_header_id)
+        plant_key = request.headers.get('plant_key')
 
+        # Validate presence of plant_id and plant_key
         if not plant_header_id:
-            return Response({'status': 'error', 'message': 'Plant ID not found in Header'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'status': 'error', 'message': 'Plant ID not found in header'}, status=status.HTTP_400_BAD_REQUEST)
+        if not plant_key:
+            return Response({'status': 'error', 'message': 'Plant key not found in header'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            plant = Plant.objects.get(plant_id=plant_header_id)
+            plant = Plant.objects.get(
+                plant_id=plant_header_id,
+                plant_status=0,           
+                plant_key=plant_key       
+            )
         except Plant.DoesNotExist:
-            return Response({'status': 'error', 'message': 'Plant ID not Match'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'status': 'error', 'message': 'Plant ID, Status or Key not valid'}, status=status.HTTP_403_FORBIDDEN)
 
         if isinstance(request.data, dict) and 'data' in request.data:
             bags = request.data['data']

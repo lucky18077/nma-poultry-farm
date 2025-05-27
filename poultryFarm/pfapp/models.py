@@ -179,11 +179,11 @@ class MotorData(models.Model):
         db_table = 'motordata'    
         
 class MaterialName(models.Model): 
-    MatID = models.AutoField(primary_key=True) 
+    MatID = models.IntegerField() 
     plant_id = models.IntegerField()  
-    MatName = models.CharField(max_length=255,blank=True, null=True)    
+    MatName = models.CharField(primary_key=True, max_length=255)    
     class Meta:
-        db_table = 'materialname' 
+        db_table = 'materialname'
         
 class BinName(models.Model):
     recipeID = models.IntegerField(primary_key=True)  # Corresponds to the integer type (int)

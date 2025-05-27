@@ -575,7 +575,7 @@ def daily_batch(request):
                     # Process bins
                     for i, field in enumerate(fields_bins, 1):
                         mat_id = bin_dict.get(field)
-                        if mat_id > 0:
+                        if mat_id is not None:
                             setwt = rec_dict.get(f'Bin{i}SetWt')
                             if setwt:
                                 recipe_material_map[recipe_id].append((field, mat_id))
@@ -583,7 +583,7 @@ def daily_batch(request):
                     # Process man
                     for i, field in enumerate(fields_man, 1):
                         mat_id = bin_dict.get(field)
-                        if mat_id > 0:
+                        if mat_id is not None:
                             setwt = rec_dict.get(f'Man{i}SetWt', 0)
                             if setwt:
                                 recipe_material_map[recipe_id].append((field, mat_id))
@@ -592,7 +592,7 @@ def daily_batch(request):
                     # Process oils
                     for oil in fields_oil:
                         mat_id = bin_dict.get(oil)
-                        if mat_id > 0:
+                        if mat_id is not None:
                             setwt = rec_dict.get(f'{oil.capitalize()}SetWt', 0)
                             if setwt:
                                 recipe_material_map[recipe_id].append((oil, mat_id))
@@ -601,7 +601,7 @@ def daily_batch(request):
                     # Process premixes and medicine
                     for field in fields_prem_meds:
                         mat_id = bin_dict.get(field)
-                        if mat_id > 0:
+                        if mat_id is not None:
                             if field == 'medicine':
                                 setwt = rec_dict.get('MedSetWt', 0)
                             else:
@@ -665,48 +665,52 @@ def daily_batch(request):
 
                     row_data = [material_wt_map.get(mat_id, 0.0) for mat_id in material_order]
 
-                    
                     # Actual batches for this recipe
                     recipe_batches = batch_data.filter(RecipeID=recipe.RecipeID)
-                    
+
                     actual_batches = []
 
                     for batch in recipe_batches:
                         batch_dict = model_to_dict(batch)
-                        bin_row = bin_data_dict.get(batch.RecipeID, {}) 
-                        actual_map = {}  
-                        
+                        bin_row = bin_data_dict.get(batch.RecipeID, {})
+                        actual_map = {}
+
                         for i in range(1, 17):
                             mat_id = bin_row.get(f'bin{i}')
                             if mat_id is not None:
                                 val = batch_dict.get(f'Bin{i}Act')
-                                actual_map[mat_id] = val
-                                if val > 0:
+                                if val is not None and not (mat_id == 0 and val == 0):
                                     actual_map[mat_id] = val
-                                    print(val)
 
                         for i in range(1, 21):
-                            if f'man{i}' in bin_row:
-                                mat_id = bin_row[f'man{i}']
+                            mat_id = bin_row.get(f'man{i}')
+                            if mat_id :
                                 val = batch_dict.get(f'ManWt{i}', 0)
                                 actual_map[mat_id] = val
 
                         for oil in ['oil1', 'oil2']:
-                            if oil in bin_row:
-                                mat_id = bin_row[oil]
+                            mat_id = bin_row.get(oil)
+                            if mat_id :
                                 val = batch_dict.get(f'{oil.capitalize()}Act', 0)
                                 actual_map[mat_id] = val
 
-                        if 'premix1' in bin_row:
-                            actual_map[bin_row['premix1']] = getattr(batch, 'Premix1Act', 0)
+                        premix1_id = bin_row.get('premix1')
+                        if premix1_id :
+                            val = getattr(batch, 'PremixWt1', 0)
+                            actual_map[premix1_id] = val
 
-                        if 'premix2' in bin_row:
-                            actual_map[bin_row['premix2']] = getattr(batch, 'Premix2Act', 0)
+                        premix2_id = bin_row.get('premix2')
+                        if premix2_id :
+                            val = getattr(batch, 'PremixWt2', 0)
+                            actual_map[premix2_id] = val
 
-                        if 'medicine' in bin_row:
-                            actual_map[bin_row['medicine']] = getattr(batch, 'MedAct', 0)
+                        medicine_id = bin_row.get('medicine')
+                        if medicine_id :
+                            val = getattr(batch, 'MedicineWt', 0)
+                            actual_map[medicine_id] = val
 
-                        row_actual = [actual_map.get(mat_id) for mat_id in material_order]
+                        row_actual = [actual_map.get(mat_id, 0.0) for mat_id in material_order]
+                        print(row_actual)
                         actual_batches.append({
                             'batch_no': batch.BatchNum,
                             'start_time': batch.stTime,
@@ -791,7 +795,7 @@ def daily_recipe(request):
                     fields_prem_meds = ['medicine', 'premix1', 'premix2']
                     for i, field in enumerate(fields_bins, 1):
                         mat_id = bin_dict.get(field)
-                        if mat_id :
+                        if mat_id is not None:
                             setwt = rec_dict.get(f'Bin{i}SetWt')
                             if setwt:
                                 recipe_material_map[recipe_id].append((field, mat_id))
@@ -916,24 +920,12 @@ def daily_recipe(request):
 
 @login_required
 def daily_consumption(request):
-    # Initialize variables
     plants = []
-    batch_data = []
-    recipe_ids = []
     plant_name = None
     start_date = date.today().isoformat()
-    # Actual totals
-    total_soya = total_ddgs = total_maize = total_mbm = total_mdoc = total_oil = 0
+    total_material_data = {}  # To store material-wise total aggregation
 
-    # Set totals
-    set_total_soya = set_total_ddgs = set_total_maize = set_total_mbm = set_total_mdoc = set_total_oil = 0
-
-    # Errors
-    error_soya = error_ddgs = error_maize = error_mbm = error_mdoc = error_oil = 0
-    error_soya_pct = error_ddgs_pct = error_maize_pct = error_mbm_pct = error_mdoc_pct = error_oil_pct = 0
-    set_total_all = total_all = error_total = error_total_pct = 0
-
-    # Filter plants by user role
+    # Get plant list based on user role
     if request.user.is_superuser:
         plants = Plant.objects.all()
     elif request.user.designation == 'manufacture':
@@ -944,6 +936,7 @@ def daily_consumption(request):
         if plant:
             plants = [plant]
 
+    # If form submitted
     if request.method == "POST":
         start_date = request.POST.get('start_date')
         plant_id = request.POST.get('plant_id')
@@ -951,104 +944,153 @@ def daily_consumption(request):
         try:
             if plant_id and start_date:
                 plant_name = Plant.objects.filter(plant_id=plant_id).first()
-
-                # Fetch batch data between 00:00 and 23:59 of that date
-                batch_data = BatchData.objects.filter(
-                    plant_id=plant_id,
-                    stdate = start_date
-                )
+                batch_data = BatchData.objects.filter(plant_id=plant_id, stdate=start_date)
 
                 recipe_ids = batch_data.values_list('RecipeID', flat=True).distinct()
-                recipe_data_dict = {
-                    recipe.RecipeID: recipe for recipe in Recipemain.objects.filter(RecipeID__in=recipe_ids)
-                }
+                recipes = Recipemain.objects.filter(RecipeID__in=recipe_ids)
+                bin_data = BinName.objects.filter(recipeID__in=recipe_ids)
 
-                for item in batch_data:
-                    # Actual weights
-                    soya_fields = [getattr(item, f'Bin{i}Act') or 0 for i in range(1, 17)]
-                    ddgs_fields = [getattr(item, f'ManWt{i}') or 0 for i in range(1, 17)]
-                    total_soya += sum(soya_fields)
-                    total_ddgs += sum(ddgs_fields)
-                    total_maize += item.Oil1Act or 0
-                    total_mbm += item.Oil2Act or 0
-                    total_mdoc += item.PremixWt1 or 0
-                    total_oil += item.PremixWt2 or 0
+                recipe_material_map = {}
+                all_mat_ids = set()
 
-                    # Set weights from recipe
-                    recipe = recipe_data_dict.get(item.RecipeID)
-                    if recipe:
-                        set_soya_fields = [getattr(recipe, f'Bin{i}SetWt') or 0 for i in range(1, 17)]
-                        set_ddgs_fields = [getattr(recipe, f'Man{i}SetWt') or 0 for i in range(1, 21)]
-                        set_total_soya += sum(set_soya_fields)
-                        set_total_ddgs += sum(set_ddgs_fields)
-                        set_total_maize += recipe.Oil1SetWt or 0
-                        set_total_mbm += recipe.Oil2SetWt or 0
-                        set_total_mdoc += recipe.Premix1Set or 0
-                        set_total_oil += recipe.Premix2Set or 0
+                for bin_row in bin_data:
+                    recipe_id = bin_row.recipeID
+                    recipe_material_map.setdefault(recipe_id, [])
+                    recipe = next((r for r in recipes if r.RecipeID == recipe_id), None)
+                    if not recipe:
+                        continue
 
-                # Error calculations
-                def calc_error_pct(actual, expected):
-                    return ((actual - expected) / expected * 100) if expected else 0
+                    rec_dict = model_to_dict(recipe)
+                    bin_dict = model_to_dict(bin_row)
 
-                error_soya = total_soya - set_total_soya
-                error_ddgs = total_ddgs - set_total_ddgs
-                error_maize = total_maize - set_total_maize
-                error_mbm = total_mbm - set_total_mbm
-                error_mdoc = total_mdoc - set_total_mdoc
-                error_oil = total_oil - set_total_oil
+                    fields_bins = [f'bin{i}' for i in range(1, 17)]
+                    fields_man = [f'man{i}' for i in range(1, 21)]
+                    fields_oil = ['oil1', 'oil2']
+                    fields_prem_meds = ['medicine', 'premix1', 'premix2']
 
-                error_soya_pct = calc_error_pct(total_soya, set_total_soya)
-                error_ddgs_pct = calc_error_pct(total_ddgs, set_total_ddgs)
-                error_maize_pct = calc_error_pct(total_maize, set_total_maize)
-                error_mbm_pct = calc_error_pct(total_mbm, set_total_mbm)
-                error_mdoc_pct = calc_error_pct(total_mdoc, set_total_mdoc)
-                error_oil_pct = calc_error_pct(total_oil, set_total_oil)
+                    # Collect materials from bins
+                    for i, field in enumerate(fields_bins, 1):
+                        mat_id = bin_dict.get(field)
+                        if mat_id is not None:
+                            setwt = rec_dict.get(f'Bin{i}SetWt')
+                            if setwt:
+                                recipe_material_map[recipe_id].append((field, mat_id))
+                                all_mat_ids.add(mat_id)
 
-                # Totals
-                set_total_all = sum([set_total_soya, set_total_ddgs, set_total_maize, set_total_mbm, set_total_mdoc, set_total_oil])
-                total_all = sum([total_soya, total_ddgs, total_maize, total_mbm, total_mdoc, total_oil])
-                error_total = total_all - set_total_all
-                error_total_pct = calc_error_pct(total_all, set_total_all)
+                    # Collect materials from manual bins
+                    for i, field in enumerate(fields_man, 1):
+                        mat_id = bin_dict.get(field)
+                        if mat_id:
+                            setwt = rec_dict.get(f'Man{i}SetWt')
+                            if setwt:
+                                recipe_material_map[recipe_id].append((field, mat_id))
+                                all_mat_ids.add(mat_id)
+
+                    # Collect materials from oils
+                    for field in fields_oil:
+                        mat_id = bin_dict.get(field)
+                        if mat_id:
+                            setwt = rec_dict.get(f'{field.capitalize()}SetWt')
+                            if setwt:
+                                recipe_material_map[recipe_id].append((field, mat_id))
+                                all_mat_ids.add(mat_id)
+
+                    # Collect materials from premix and medicine
+                    for field in fields_prem_meds:
+                        mat_id = bin_dict.get(field)
+                        if mat_id:
+                            if field == 'medicine':
+                                setwt = rec_dict.get('MedSetWt')
+                            else:
+                                setwt = rec_dict.get(f'{field.capitalize()}Set')
+                            if setwt:
+                                recipe_material_map[recipe_id].append((field, mat_id))
+                                all_mat_ids.add(mat_id)
+
+                materials = MaterialName.objects.filter(MatID__in=all_mat_ids)
+                material_map = {m.MatID: m.MatName for m in materials}
+
+                for recipe_id in recipe_ids:
+                    recipe = next((r for r in recipes if r.RecipeID == recipe_id), None)
+                    bin_row = next((b for b in bin_data if b.recipeID == recipe_id), None)
+                    if not recipe or not bin_row:
+                        continue
+
+                    rec_dict = model_to_dict(recipe)
+                    recipe_batches = batch_data.filter(RecipeID=recipe_id)
+
+                    for bin_name, mat_id in recipe_material_map.get(recipe_id, []): 
+                        if 'bin' in bin_name:
+                            index = bin_name.replace('bin', '')
+                            set_key = f'Bin{index}SetWt'
+                            act_key = f'Bin{index}Act'
+                        elif 'man' in bin_name:
+                            index = bin_name.replace('man', '')
+                            set_key = f'Man{index}SetWt'
+                            act_key = f'ManWt{index}'
+                        elif bin_name in ['oil1', 'oil2']:
+                            set_key = f'{bin_name.capitalize()}SetWt'
+                            act_key = f'{bin_name.capitalize()}Act'
+                        elif bin_name == 'medicine':
+                            set_key = 'MedSetWt'
+                            act_key = 'MedicineWt'
+                        elif bin_name == 'premix1':
+                            set_key = 'Premix1Set'
+                            act_key = 'PremixWt1'
+                        elif bin_name == 'premix2':
+                            set_key = 'Premix2Set'
+                            act_key = 'PremixWt2'
+                        else:
+                            continue
+
+                        # Get set weight per batch
+                        set_wt_single = rec_dict.get(set_key) or 0
+                        batch_count = recipe_batches.count()
+                        set_wt = set_wt_single * batch_count
+
+                        # Sum actual weights from all batches
+                        act_sum = sum(model_to_dict(b).get(act_key) or 0 for b in recipe_batches)
+
+                        if mat_id not in total_material_data:
+                            total_material_data[mat_id] = {
+                                'material': material_map.get(mat_id, f'MatID {mat_id}'),
+                                'set_total': 0,
+                                'actual_total': 0,
+                                'error_total': 0,
+                                'error_pct': 0,
+                            }
+
+                        total_material_data[mat_id]['set_total'] += set_wt
+                        total_material_data[mat_id]['actual_total'] += act_sum
+                        error = act_sum - set_wt
+                        total_material_data[mat_id]['error_total'] += error
+
+                # Calculate error % for each material
+                for mat_id, data in total_material_data.items():
+                    if data['set_total'] > 0:
+                        data['error_pct'] = (data['error_total'] / data['set_total']) * 100
+                    else:
+                        data['error_pct'] = 0
 
         except Exception as e:
-            print("Error:", e)
+            print("Error in daily_consumption:", e) 
+    total_set = sum(row['set_total'] for row in total_material_data.values())
+    total_actual = sum(row['actual_total'] for row in total_material_data.values())
+    total_error = total_actual - total_set
+    total_error_pct = (total_error / total_set * 100) if total_set else 0
 
     return render(request, 'daily-consumption-report.html', {
         'plants': plants,
         'plant_name': plant_name,
-        'batch_data': batch_data,
         'start_date': start_date,
-        'total_soya': total_soya,
-        'total_ddgs': total_ddgs,
-        'total_maize': total_maize,
-        'total_mbm': total_mbm,
-        'total_mdoc': total_mdoc,
-        'total_oil': total_oil,
-        'set_total_soya': set_total_soya,
-        'set_total_ddgs': set_total_ddgs,
-        'set_total_maize': set_total_maize,
-        'set_total_mbm': set_total_mbm,
-        'set_total_mdoc': set_total_mdoc,
-        'set_total_oil': set_total_oil,
-        'error_soya': error_soya,
-        'error_ddgs': error_ddgs,
-        'error_maize': error_maize,
-        'error_mbm': error_mbm,
-        'error_mdoc': error_mdoc,
-        'error_oil': error_oil,
-        'error_soya_pct': error_soya_pct,
-        'error_ddgs_pct': error_ddgs_pct,
-        'error_maize_pct': error_maize_pct,
-        'error_mbm_pct': error_mbm_pct,
-        'error_mdoc_pct': error_mdoc_pct,
-        'error_oil_pct': error_oil_pct,
-        'set_total_all': set_total_all,
-        'total_all': total_all,
-        'error_total': error_total,
-        'error_total_pct': error_total_pct,
         'is_plant_owner': request.user.designation == 'plant_owner',
+        'total_material_data': total_material_data,
+        'total_set': total_set,
+        'total_actual': total_actual,
+        'total_error': total_error,
+        'total_error_pct': total_error_pct
     })
-
+    
 @login_required
 def daily_motor(request):
     plants = []

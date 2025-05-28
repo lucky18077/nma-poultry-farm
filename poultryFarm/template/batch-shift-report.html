@@ -27,7 +27,7 @@
                     </div>
                     <div>
                         <label for="from_datetime">Select Date </label>
-                        <input type="date" name="start_date" class="form-control" value="{{ start_date }}" required>
+                        <input type="date" name="start_date" class="form-control" value="{{ request.POST.start_date|default:start_date }}" required>
                     </div>
                     <button type="submit" class="btn btn-sm btn-primary-600" style="margin-top: 22px;">
                         Submit

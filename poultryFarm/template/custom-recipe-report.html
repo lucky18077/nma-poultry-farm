@@ -4,7 +4,7 @@
 
     <div class="dashboard-main-body">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
-            <h6 class="fw-semibold mb-0">Recipe Shift Report</h6>
+            <h6 class="fw-semibold mb-0">Recipe Custom Report</h6>
             
             <ul class="d-flex align-items-center gap-2">
                 <form method="POST" action="{% url 'custom_recipe' %}">
@@ -53,72 +53,33 @@
             <div class="card basic-data-table mb-5 mt-3">
                 <div class="card-header">
                     <div class="d-flex gap-3">
-                    <h5 class="card-title mb-0">Recipe Name : {{ batch.RecipeName }} </h5>
+                        <h5 class="card-title mb-0">Recipe Name : {{ batch.RecipeName }}</h5>
+                        <h5 class="card-title mb-0">Batch Count  : {{ batch.BatchCount }}</h5>
                     </div>
-                    
                 </div>
-                <div class="card-body" >
-
+                <div class="card-body">
                     <table class="table bordered-table mb-0">
                         <thead>
                             <tr>
                                 <th scope="col">Bin No</th>
                                 <th scope="col">Material Name</th>
-                                <th scope="col">Set WT(kg)</th>
-                                <th scope="col">Actual WT(kg)</th>
-                                <th scope="col">Error(kg)</th>
-                                <th scope="col">Error(%)</th>
+                                <th scope="col">Set WT (kg)</th>
+                                <th scope="col">Actual WT (kg)</th>
+                                <th scope="col">Error (kg)</th>
+                                <th scope="col">Error (%)</th>
                             </tr>
                         </thead>
                         <tbody>
+                            {% for row in batch.materials %}
                             <tr>
-                                <td>1</td>
-                                <td>SOYA</td>
-                                <td>{{ batch.set_total_soya|floatformat:2 }}</td>
-                                <td>{{ batch.total_soya|floatformat:2 }}</td>
-                                <td>{{ batch.error_soya|floatformat:2 }}</td>
-                                <td>{{ batch.error_soya_pct|floatformat:2 }}%</td>
+                                <td>{{ row.bin }}</td>
+                                <td>{{ row.material }}</td>
+                                <td>{{ row.set_wt|floatformat:2 }}</td>
+                                <td>{{ row.actual_wt|floatformat:2 }}</td>
+                                <td>{{ row.error|floatformat:2 }}</td>
+                                <td>{{ row.error_pct|floatformat:2 }}%</td>
                             </tr>
-                            <tr>
-                                <td>2</td>
-                                <td>DDGS</td>
-                                <td>{{ batch.set_total_ddgs|floatformat:2 }}</td>
-                                <td>{{ batch.total_ddgs|floatformat:2 }}</td>
-                                <td>{{ batch.error_ddgs|floatformat:2 }}</td>
-                                <td>{{ batch.error_ddgs_pct|floatformat:2 }}%</td>
-                            </tr>
-                            <tr>
-                                <td>3</td>
-                                <td>MAIZE</td>
-                                <td>{{ batch.set_total_maize|floatformat:2 }}</td>
-                                <td>{{ batch.total_maize|floatformat:2 }}</td>
-                                <td>{{ batch.error_maize|floatformat:2 }}</td>
-                                <td>{{ batch.error_maize_pct|floatformat:2 }}%</td>
-                            </tr>
-                            <tr>
-                                <td>4</td>
-                                <td>MBM</td>
-                                <td>{{ batch.set_total_mbm|floatformat:2 }}</td>
-                                <td>{{ batch.total_mbm|floatformat:2 }}</td>
-                                <td>{{ batch.error_mbm|floatformat:2 }}</td>
-                                <td>{{ batch.error_mbm_pct|floatformat:2 }}%</td>
-                            </tr>
-                            <tr>
-                                <td>5</td>
-                                <td>MDOC</td>
-                                <td>{{ batch.set_total_mdoc|floatformat:2 }}</td>
-                                <td>{{ batch.total_mdoc|floatformat:2 }}</td>
-                                <td>{{ batch.error_mdoc|floatformat:2 }}</td>
-                                <td>{{ batch.error_mdoc_pct|floatformat:2 }}%</td>
-                            </tr>
-                            <tr>
-                                <td>6</td>
-                                <td>Oil 1</td>
-                                <td>{{ batch.set_total_oil|floatformat:2 }}</td>
-                                <td>{{ batch.total_oil|floatformat:2 }}</td>
-                                <td>{{ batch.error_oil|floatformat:2 }}</td>
-                                <td>{{ batch.error_oil_pct|floatformat:2 }}%</td>
-                            </tr>
+                            {% endfor %}
                             <tr>
                                 <td></td>
                                 <td><strong>Total</strong></td>
@@ -132,8 +93,8 @@
                 </div>
             </div>
             {% endfor %}
-            {% else %}
-        <div class="alert alert-warning">No data found</div>
+        {% else %}
+            <div class="alert alert-warning">No data found</div>
         {% endif %}
     </div>
 

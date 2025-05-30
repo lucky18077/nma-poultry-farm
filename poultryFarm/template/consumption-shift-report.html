@@ -47,7 +47,7 @@
     <div class="row">
     <div class="col-4 print-only text-left "><h6 style="color: #61acd9;">Shift Consumption Report</h6></div>
         <div class="col-4 print-only text-center">
-                <h6 class=" card-title mb-0" style="margin-left: 10px;">
+                <h6 style="color: #61acd9;" style="margin-left: 10px;">
                                 {% if shift == "shiftA" %}
                                 Shift : A
                     {% elif shift == "shiftB" %}
@@ -66,76 +66,35 @@
         <div class="card basic-data-table mt-3">
             
             <div class="card-body">
-                <table class="table bordered-table mb-0"  >
-                    <thead>
-                        <tr>
-                            <th scope="col">Bin No</th>
-                            <th scope="col">Material Name</th>
-                            <th scope="col">Set WT(kg)</th>
-                            <th scope="col">Actual WT(kg)</th>
-                            <th scope="col">Error(kg)</th>
-                            <th scope="col">Error(%)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>SOYA</td>
-                            <td>{{ set_total_soya|floatformat:2 }}</td>
-                            <td>{{ total_soya|floatformat:2 }}</td>
-                            <td>{{ error_soya|floatformat:2 }}</td>
-                            <td>{{ error_soya_pct|floatformat:2 }}%</td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>DDGS</td>
-                            <td>{{ set_total_ddgs|floatformat:2 }}</td>
-                            <td>{{ total_ddgs|floatformat:2 }}</td>
-                            <td>{{ error_ddgs|floatformat:2 }}</td>
-                            <td>{{ error_ddgs_pct|floatformat:2 }}%</td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>MAIZE</td>
-                            <td>{{ set_total_maize|floatformat:2 }}</td>
-                            <td>{{ total_maize|floatformat:2 }}</td>
-                            <td>{{ error_maize|floatformat:2 }}</td>
-                            <td>{{ error_maize_pct|floatformat:2 }}%</td>
-                        </tr>
-                        <tr>
-                            <td>4</td>
-                            <td>MBM</td>
-                            <td>{{ set_total_mbm|floatformat:2 }}</td>
-                            <td>{{ total_mbm|floatformat:2 }}</td>
-                            <td>{{ error_mbm|floatformat:2 }}</td>
-                            <td>{{ error_mbm_pct|floatformat:2 }}%</td>
-                        </tr>
-                        <tr>
-                            <td>5</td>
-                            <td>MDOC</td>
-                            <td>{{ set_total_mdoc|floatformat:2 }}</td>
-                            <td>{{ total_mdoc|floatformat:2 }}</td>
-                            <td>{{ error_mdoc|floatformat:2 }}</td>
-                            <td>{{ error_mdoc_pct|floatformat:2 }}%</td>
-                        </tr>
-                        <tr>
-                            <td>6</td>
-                            <td>Oil 1</td>
-                            <td>{{ set_total_oil|floatformat:2 }}</td>
-                            <td>{{ total_oil|floatformat:2 }}</td>
-                            <td>{{ error_oil|floatformat:2 }}</td>
-                            <td>{{ error_oil_pct|floatformat:2 }}%</td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td><strong>Total</strong></td>
-                            <td><strong>{{ set_total_all|floatformat:2 }}</strong></td>
-                            <td><strong>{{ total_all|floatformat:2 }}</strong></td>
-                            <td><strong>{{ error_total|floatformat:2 }}</strong></td>
-                            <td><strong>{{ error_total_pct|floatformat:2 }}%</strong></td>
-                        </tr>
-                    </tbody>
-                </table>
+                <table class="table bordered-table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Material</th>
+                                <th>Set Weight (KG)</th>
+                                <th>Actual Weight (KG)</th>
+                                <th>Error (KG)</th>
+                                <th>Error (%)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in total_material_data.values %}
+                            <tr>
+                                <td>{{ row.material }}</td>
+                                <td>{{ row.set_total|floatformat:2 }}</td>
+                                <td>{{ row.actual_total|floatformat:2 }}</td>
+                                <td>{{ row.error_total|floatformat:2 }}</td>
+                                <td>{{ row.error_pct|floatformat:2 }}%</td>
+                            </tr>
+                            {% endfor %}
+                            <tr>
+                                <td><strong>Total</strong></td>
+                                <td><strong>{{ total_set|floatformat:2 }}</strong></td>
+                                <td><strong>{{ total_actual|floatformat:2 }}</strong></td>
+                                <td><strong>{{ total_error|floatformat:2 }}</strong></td>
+                                <td><strong>{{ total_error_pct|floatformat:2 }}%</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
             </div>
         </div>
     </div>    

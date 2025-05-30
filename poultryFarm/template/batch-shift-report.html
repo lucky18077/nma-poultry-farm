@@ -10,6 +10,7 @@
                     <div>
                         <label for="from_datetime">Plant</label>
                         <select name="plant_id" class="form-select form-select-sm w-auto" required>
+                            <option disabled {% if not request.POST.plant_id %}selected{% endif %}>Select Plant</option>
                             {% for plant in plants %}
                             <option value="{{ plant.plant_id }}" {% if request.POST.plant_id == plant.plant_id|stringformat:"s" %}selected{% endif %}>
                                 {{ plant.plant_name }}
@@ -42,73 +43,79 @@
         </div>
     <div class="print-only text-center"><h6 style="color: #61acd9;">{{  plant_name.plant_name }}</h6></div>
     <div class="row">
-        <div class=" col-6 print-only text-left"><h6 style="color: #61acd9;">Shift Wise Batch Reports</h6></div>
-        <div class=" col-6 print-only text-center"><h6 style="color: #61acd9;">{{ request.POST.start_date|default:start_date }}</h6></div>
+        <div class=" col-4 print-only text-left"><h6 style="color: #61acd9;">Shift Wise Batch Reports</h6></div>
+        <div class=" col-4 print-only text-center"><h6 style="color: #61acd9;">{{ request.POST.start_date|default:start_date }}</h6></div>
+         <div class=" col-4 print-only text-center"><div style="color: #61acd9;">
+        <h6 class="card-title mb-0">
+            {% if shift == "shiftA" %}
+                Shift : A
+                {% elif shift == "shiftB" %}
+                 Shift : B
+                 {% elif shift == "shiftC" %}
+                 Shift : C
+                 {% else %}
+                 {{ shift }}
+            {% endif %}                                                                   
+        </h6>
+        </div>
     </div>
-    
-    {% if batch_counts %}
-        {% for item in batch_counts %}
-            <div class="card basic-data-table mb-24">
-                <div class="card-header">
-                    <div class="d-flex gap-3">
-                        <h5 class="card-title mb-0">Recipe ID : {{ item.RecipeID }}</h5>
-                        <h5 class="card-title mb-0">Batch Count : {{ item.count }}</h5>
-                        <h5 class="card-title mb-0">
-                            {% if shift == "shiftA" %}
-                              Shift : A
-                            {% elif shift == "shiftB" %}
-                              Shift : B
-                            {% elif shift == "shiftC" %}
-                              Shift : C
-                            {% else %}
-                              {{ shift }}
-                            {% endif %}
-                        </h5>
+            {% if filtered_data %}
+                {% for item in filtered_data %}
+                    <div class="card basic-data-table mb-24">
+                        <div class="card-header">
+                            <div class="d-flex gap-3">
+                                <h5 class="card-title mb-0">Recipe Name : {{ item.RecipeName }}</h5>
+                                <h5 class="card-title mb-0">
+                                    {% if shift == "shiftA" %}
+                                        Shift : A
+                                    {% elif shift == "shiftB" %}
+                                        Shift : B
+                                    {% elif shift == "shiftC" %}
+                                        Shift : C
+                                    {% else %}
+                                        {{ shift }}
+                                    {% endif %}
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div style="overflow-x: auto;">
+                                <table class="table bordered-table mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Batch No</th>
+                                            <th>Start Time</th>
+                                            {% for matname in material_name_list %}
+                                                <th>{{ matname }}</th>
+                                            {% endfor %}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Set WT</td>
+                                            <td></td>
+                                            {% for val in item.Materials %}
+                                                <td>{{ val|floatformat:2 }}</td>
+                                            {% endfor %}
+                                        </tr>
+                                        {% for batch in item.ActualBatches %}
+                                            <tr>
+                                                <td>{{ batch.batch_no }}</td>
+                                                <td>{{ batch.start_time }}</td>
+                                                {% for act in batch.values %}
+                                                    <td>{{ act|floatformat:2 }}</td>
+                                                {% endfor %}
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
-                    
-                </div>
-                <div class="card-body">
-                    <table class="table bordered-table mb-0">
-                        <thead>
-                            <tr>
-                                <th scope="col">Batch No</th>
-                                <th scope="col">Start Time</th>
-                                {% for mitem in materialName %}
-                                <th scope="col">{{ mitem.MatName }}</th>
-                                {% endfor %}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Set WT</td>
-                                <td></td>
-                                <td>{{ item.total_soya|floatformat:2 }}</td>
-                                <td>{{ item.total_ddgs|floatformat:2 }}</td>
-                                <td>{{ item.Oil1SetWt|floatformat:2 }}</td>
-                                <td>{{ item.Oil2SetWt|floatformat:2 }}</td>
-                                <td>{{ item.Premix1Set|floatformat:2 }}</td>
-                                <td>{{ item.Premix2Set|floatformat:2 }}</td>
-                            </tr>
-                            {% for allitem in item.actual_data %}
-                            <tr>
-                                <td>{{ allitem.BatchNum|floatformat:2 }}</td>
-                                <td>{{ allitem.stTime }}</td>
-                                <td>{{ allitem.total_soya|floatformat:2 }}</td>
-                                <td>{{ allitem.total_ddgs|floatformat:2 }}</td>
-                                <td>{{ allitem.Oil1SetWt|floatformat:2 }}</td>
-                                <td>{{ allitem.Oil2SetWt|floatformat:2 }}</td>
-                                <td>{{ allitem.Premix1Set|floatformat:2 }}</td>
-                                <td>{{ allitem.Premix2Set|floatformat:2 }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        {% endfor %}
-    {% else %}
-    <div class="alert alert-warning">No data found</div>
-    {% endif %}     
+                {% endfor %}
+            {% else %}
+                <div class="alert alert-warning">No data found.</div>
+            {% endif %}
     </div>
 </div>
 

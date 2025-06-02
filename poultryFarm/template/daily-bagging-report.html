@@ -58,6 +58,7 @@
                     <table class="table bordered-table mb-0" >
                         <thead>
                             <tr>
+                                <th>Bag ID</th>
                                 <th>Date</th>
                                 <th>Time</th>
                                 <th>Bag Count</th>
@@ -67,6 +68,7 @@
                         <tbody>
                             {% for batch in bagging_data %}
                             <tr>
+                                <td>{{ batch.bagID   }}</td>
                                 <td>{{ batch.sdate   }}</td>
                                 <td>{{ batch.sTime  }}</td>
                                 <td>{{ batch.bagcount|floatformat:2 }}</td>

@@ -42,11 +42,11 @@
                 <h6 style="color: #61acd9;">{{ plant_name.plant_name }}</h6>
             </div>
             <div class="row">
-                <div class="col-4 print-only text-left">
+                <div class="col-6 print-only text-left">
                     <h6 style="color: #61acd9;">Daily Motor Reports</h6>
                 </div>
-                <div class="col-4 print-only text-center">
-                    <h6 style="color: #61acd9;">{{ request.POST.start_date|default:start_date }}</h6>
+                <div class="col-6 print-only text-end">
+                    <h6 style="color: #61acd9;">Date : {{ request.POST.start_date|default:start_date }}</h6>
                 </div>
             </div>
 
@@ -58,9 +58,10 @@
                         <thead>
                             <tr>
                                 <th>Motor ID</th>
+                                <th>Time</th>
                                 <th>ScrewRPM</th>
                                 <th>Hammer Current</th>
-                                <th>rvfrpm</th>
+                                <th>RVFRPM</th>
                                 <th>Pellet Current</th>
                                 <th>FeederRPM</th>
                                 <th>Hygenizer RPM</th>
@@ -73,6 +74,7 @@
                             {% for batch in motor_data %}
                             <tr>
                                 <td>{{ batch.motorID  }}</td>
+                                <td>{{ batch.sTime  }}</td>
                                 <td>{{ batch.ScrewRPM|floatformat:2 }}</td>
                                 <td>{{ batch.hammercurrent|floatformat:2 }}</td>
                                 <td>{{ batch.rvfrpm|floatformat:2 }}</td>

@@ -43,11 +43,11 @@
                 <h6 style="color: #61acd9;">{{ plant_name.plant_name }}</h6>
             </div>
             <div class="row">
-                <div class="col-4 print-only text-left">
-                    <h6 style="color: #61acd9;">Custom Bagging Reports</h6>
+                <div class="col-6 print-only text-left">
+                    <h6 style="color: #61acd9;">Daily Bagging Reports</h6>
                 </div>
-                <div class="col-4 print-only text-center">
-                    <h6 style="color: #61acd9;">{{ request.POST.start_date|default:start_date }}</h6>
+                <div class="col-6 print-only text-end">
+                    <h6 style="color: #61acd9;">Date : {{ request.POST.start_date|default:start_date }}</h6>
                 </div>
             </div>
 
@@ -58,7 +58,6 @@
                     <table class="table bordered-table mb-0" >
                         <thead>
                             <tr>
-                                <th>Bag ID</th>
                                 <th>Date</th>
                                 <th>Time</th>
                                 <th>Bag Count</th>
@@ -68,7 +67,6 @@
                         <tbody>
                             {% for batch in bagging_data %}
                             <tr>
-                                <td>{{ batch.bagID   }}</td>
                                 <td>{{ batch.sdate   }}</td>
                                 <td>{{ batch.sTime  }}</td>
                                 <td>{{ batch.bagcount|floatformat:2 }}</td>

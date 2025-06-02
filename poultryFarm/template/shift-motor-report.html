@@ -4,7 +4,7 @@
 
     <div class="dashboard-main-body">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
-            <h6 class="fw-semibold mb-0">Shift Motor Report</h6>
+            <h6 class="fw-semibold mb-0">Motor Shift Report</h6>
 
             <ul class="d-flex align-items-center gap-2">
                 <form method="POST" action="{% url 'shift_motor' %}">
@@ -51,10 +51,23 @@
             </div>
             <div class="row">
                 <div class="col-4 print-only text-left">
-                    <h6 style="color: #61acd9;">Shift Motor Reports</h6>
+                    <h6 style="color: #61acd9;">Motor Shift Reports</h6>
                 </div>
                 <div class="col-4 print-only text-center">
-                    <h6 style="color: #61acd9;">{{ request.POST.start_date|default:start_date }}</h6>
+                    <h6 style="color: #61acd9;">Date : {{ request.POST.start_date|default:start_date }}</h6>
+                </div>
+                <div class=" col-4 print-only text-end"><div style="color: #61acd9;">
+                <h6 class="card-title mb-0">
+                    {% if shift == "shiftA" %}
+                        Shift : A
+                        {% elif shift == "shiftB" %}
+                        Shift : B
+                        {% elif shift == "shiftC" %}
+                        Shift : C
+                        {% else %}
+                        {{ shift }}
+                    {% endif %}                                                                   
+                </h6>
                 </div>
             </div>
 
@@ -66,9 +79,10 @@
                         <thead>
                             <tr>
                                 <th>Motor ID</th>
+                                <th>Time</th>
                                 <th>ScrewRPM</th>
                                 <th>Hammer Current</th>
-                                <th>rvfrpm</th>
+                                <th>RVFRPM</th>
                                 <th>Pellet Current</th>
                                 <th>FeederRPM</th>
                                 <th>Hygenizer RPM</th>
@@ -81,6 +95,7 @@
                             {% for batch in motor_data %}
                             <tr>
                                 <td>{{ batch.motorID  }}</td>
+                                <td>{{ batch.sTime  }}</td>
                                 <td>{{ batch.ScrewRPM|floatformat:2 }}</td>
                                 <td>{{ batch.hammercurrent|floatformat:2 }}</td>
                                 <td>{{ batch.rvfrpm|floatformat:2 }}</td>

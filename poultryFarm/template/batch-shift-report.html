@@ -43,8 +43,8 @@
         </div>
     <div class="print-only text-center"><h6 style="color: #61acd9;">{{  plant_name.plant_name }}</h6></div>
     <div class="row">
-        <div class=" col-4 print-only text-left"><h6 style="color: #61acd9;">Shift Wise Batch Reports</h6></div>
-        <div class=" col-4 print-only text-center"><h6 style="color: #61acd9;">{{ request.POST.start_date|default:start_date }}</h6></div>
+        <div class=" col-4 print-only text-left"><h6 style="color: #61acd9;">Shift Batch Reports</h6></div>
+        <div class=" col-4 print-only text-center"><h6 style="color: #61acd9;">Date : {{ request.POST.start_date|default:start_date }}</h6></div>
          <div class=" col-4 print-only text-center"><div style="color: #61acd9;">
         <h6 class="card-title mb-0">
             {% if shift == "shiftA" %}
@@ -118,6 +118,7 @@
             {% endif %}
     </div>
 </div>
+</div>  
 
 {% include "footer.html" %}
 

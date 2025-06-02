@@ -711,7 +711,6 @@ def daily_batch(request):
                             actual_map[medicine_id] = val
 
                         row_actual = [actual_map.get(mat_id, 0.0) for mat_id in material_order]
-                        print(row_actual)
                         actual_batches.append({
                             'batch_no': batch.BatchNum,
                             'start_time': batch.stTime,
@@ -1121,6 +1120,16 @@ def daily_motor(request):
                 motor_data = MotorData.objects.filter(
                     plant_id=plant_id,
                     sdate=start_date
+                ).filter(
+                    Q(ScrewRPM__gt=0) |
+                    Q(hammercurrent__gt=0) |
+                    Q(rvfrpm__gt=0) |
+                    Q(pelletcurrent__gt=0) |
+                    Q(feederRPM__gt=0) |
+                    Q(hygenizerRPM__gt=0) |
+                    Q(crumblerfeederRPM__gt=0) |
+                    Q(molassesRPM__gt=0) |
+                    Q(blowerRPM__gt=0)
                 )
         except Exception as e:
             print("Error:", e)
@@ -1161,9 +1170,11 @@ def daily_bagging(request):
             if plant_id and start_date:
                 plant_name = Plant.objects.filter(plant_id=plant_id).first()
                 bagging_data = BagData.objects.filter(
-                    plant_id = plant_id,
-                    sdate = start_date
-                ) 
+                    plant_id=plant_id,
+                    sdate=start_date
+                ).filter(
+                    Q(bagcount__gt=0) | Q(bagWT__gt=0)
+                )
         except Exception as e:
             print("Error:", e)
 
@@ -1948,6 +1959,7 @@ def shift_motor(request):
         'recipe_ids': recipe_ids,
         'motor_data': motor_data,
         'start_date': start_date,
+        'shift':shift,
         'is_plant_owner': request.user.designation == 'plant_owner',
     }) 
 
@@ -2016,6 +2028,7 @@ def shift_bagging(request):
         'recipe_ids': recipe_ids,
         'bagging_data': bagging_data,
         'start_date': start_date,
+        'shift':shift,
         'is_plant_owner': request.user.designation == 'plant_owner',
     })
 

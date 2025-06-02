@@ -38,12 +38,13 @@
     </div>
     <div class="print-only text-center "><h6 style="color: #61acd9;">{{  plant_name.plant_name }}</h6></div>
     <div class="row justify-content-around">
-    <div class=" col-6 print-only text-center "><h6 style="color: #61acd9;">Daily Consumption Report</h6></div>
-    <div class=" col-6 print-only text-center "><h6 style="color: #61acd9;">{{ request.POST.start_date|default:start_date }}</h6></div>
+    <div class=" col-6 print-only text-left "><h6 style="color: #61acd9;">Daily Consumption Report</h6></div>
+    <div class=" col-6 print-only text-center "><h6 style="color: #61acd9;">Date : {{ request.POST.start_date|default:start_date }}</h6></div>
     </div>
    
             <div class="card basic-data-table mb-5 mt-3">
                 <div class="card-body">
+                <div style="overflow-x: auto;"> 
                     <table class="table bordered-table mb-0">
                         <thead>
                             <tr>
@@ -73,6 +74,7 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
                 </div>
             </div>
              

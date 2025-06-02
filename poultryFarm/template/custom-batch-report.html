@@ -40,8 +40,8 @@
     <div class="print-only text-center"><h6 style="color: #61acd9;">{{ plant_name.plant_name }}</h6></div>
     <div class="row">
         <div class="col-4 print-only text-left"><h6 style="color: #61acd9;">Custom Batch Reports</h6></div>
-        <div class="col-4 print-only text-center"><h6 style="color: #61acd9;">{{ request.POST.start_date|default:start_date }}</h6></div>
-        <div class="col-4 print-only text-center"><h6 style="color: #61acd9;">{{ request.POST.end_date|default:end_date }}</h6></div>
+        <div class="col-4 print-only text-center"><h6 style="color: #61acd9;">From : {{ request.POST.start_date|default:start_date }}</h6></div>
+        <div class="col-4 print-only text-center"><h6 style="color: #61acd9;">To : {{ request.POST.end_date|default:end_date }}</h6></div>
     </div>
     
         {% if filtered_data %}

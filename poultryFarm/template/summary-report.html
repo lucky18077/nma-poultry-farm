@@ -40,8 +40,20 @@
     <!-- <div class="print-only"><h6 style="color: #61acd9;">{{  plant_name.plant_name }}</h6></div> -->
     
     <div class="print_summary_container">
-    <div class="print-only text-center"><h6 style="color: #61acd9;">LARK ENGINEERING COMPANY (INDIA) PVT LTD</h6></div>
-    <div class="print-only text-center"><h6 style="color: #61acd9;">Summary Reports</h6></div>
+     <div class="print-only text-center">
+                <h6 style="color: #61acd9;">{{ plant_name.plant_name }}</h6>
+            </div>
+            <div class="row">
+                <div class="col-4 print-only text-left">
+                    <h6 style="color: #61acd9;">Summary  Reports</h6>
+                </div>
+                <div class="col-4 print-only text-center">
+                    <h6 style="color: #61acd9;">From : {{ request.POST.start_date|default:start_date }}</h6>
+                </div>
+                <div class="col-4 print-only text-center">
+                    <h6 style="color: #61acd9;">To : {{ request.POST.end_date|default:end_date }}</h6>
+                </div>
+            </div>
     <div class="row gy-4">
         <div class="card-body p-24">
             <div class="table-responsive scroll-sm">
@@ -64,7 +76,7 @@
                                     <td class="no-print">{{ forloop.counter }}</td>
                                     <td>{{ item.Last_RecipeName }}</td>
                                     <td>{{ item.batch_count }}</td>
-                                    <td>{{ item.total_recipe_weight }}</td>
+                                    <td>{{ item.total_recipe_weight|floatformat:2 }}</td>
                                     <td> {{ item.start_time }}</td>
                                     <td>{{ item.end_time }} </td>
                                     <td>{{ item.total_time }}</td>

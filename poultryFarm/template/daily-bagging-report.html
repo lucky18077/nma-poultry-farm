@@ -7,14 +7,14 @@
             <h6 class="fw-semibold mb-0">Daily Bagging Report</h6>
 
             <ul class="d-flex align-items-center gap-2">
-                <form method="POST" action="{% url 'daily_bagging' %}">
-                    {% csrf_token %}
+                <form method="GET" action="{% url 'daily_bagging' %}">
+                     
                     <div class="d-flex flex-wrap align-items-center gap-3">
                         <div>
                             <label for="from_datetime">Plant</label>
                             <select name="plant_id" class="form-select form-select-sm w-auto" required>
                                 {% for plant in plants %}
-                                <option value="{{ plant.plant_id }}" {% if request.POST.plant_id == plant.plant_id|stringformat:"s" %}selected{% endif %}>
+                                <option value="{{ plant.plant_id }}" {% if request.GET.plant_id == plant.plant_id|stringformat:"s" %}selected{% endif %}>
                                     {{ plant.plant_name }}
                                 </option>
                                 {% endfor %}
@@ -22,7 +22,7 @@
                         </div>
                         <div>
                             <label for="from_datetime">Select Date </label>
-                            <input type="date" name="start_date" class="form-control" value="{{ request.POST.start_date|default:start_date }}" required>
+                            <input type="date" name="start_date" class="form-control" value="{{ request.GET.start_date|default:start_date }}" required>
                         </div>
 
                         <button type="submit" class="btn btn-sm btn-primary-600" style="margin-top: 22px;">
@@ -47,7 +47,7 @@
                     <h6 style="color: #61acd9;">Daily Bagging Reports</h6>
                 </div>
                 <div class="col-6 print-only text-end">
-                    <h6 style="color: #61acd9;">Date : {{ request.POST.start_date|default:start_date }}</h6>
+                    <h6 style="color: #61acd9;">Date : {{ request.GET.start_date|default:start_date }}</h6>
                 </div>
             </div>
 

@@ -259,11 +259,11 @@ def dashboard(request):
         if plant:
             plant_id = plant.plant_id
 
-    if request.method == 'POST': 
-        selected_datetime_str = request.POST.get('select_date') 
+    if request.method == 'GET': 
+        selected_datetime_str = request.GET.get('select_date')  or date.today().strftime('%Y-%m-%d')
         # Only get plant_id from POST for non-plant-owner
         if request.user.designation != 'plant_owner':
-            plant_id = request.POST.get('plant_id')
+            plant_id = request.GET.get('plant_id')
 
         # fallback if still not found
         if not plant_id and request.user.designation == 'plant_owner':
@@ -383,9 +383,9 @@ def plant_detail(request, plant_id):
     unique_recipe_data=None
     hammer_stats = pellet_stats = {}
 
-    if request.method == 'POST':
-        from_date_str = request.POST.get('from_datetime')
-        to_date_str = request.POST.get('to_datetime')
+    if request.method == 'GET':
+        from_date_str = request.GET.get('from_datetime') or date.today().strftime('%Y-%m-%d')
+        to_date_str = request.GET.get('to_datetime') or date.today().strftime('%Y-%m-%d')
 
         if from_date_str and to_date_str:
             from_date = datetime.strptime(from_date_str, "%Y-%m-%d").date()
@@ -536,9 +536,9 @@ def daily_batch(request):
             plant_id = plant.plant_id
             plants = [plant]
 
-    if request.method == "POST":
-        start_date = request.POST.get('start_date')
-        plant_id = request.POST.get('plant_id')
+    if request.method == "GET":
+        start_date = request.GET.get('start_date') or date.today().strftime('%Y-%m-%d')
+        plant_id = request.GET.get('plant_id')
 
         try:
             if plant_id and start_date:
@@ -760,9 +760,9 @@ def daily_recipe(request):
             plant_id = plant.plant_id
             plants = [plant]
 
-    if request.method == "POST":
-        start_date = request.POST.get('start_date')
-        plant_id = request.POST.get('plant_id')
+    if request.method == "GET":
+        start_date = request.GET.get('start_date') or date.today().strftime('%Y-%m-%d')
+        plant_id = request.GET.get('plant_id')
 
         try:
             if plant_id and start_date:
@@ -936,9 +936,9 @@ def daily_consumption(request):
             plants = [plant]
 
     # If form submitted
-    if request.method == "POST":
-        start_date = request.POST.get('start_date')
-        plant_id = request.POST.get('plant_id')
+    if request.method == "GET":
+        start_date = request.GET.get('start_date') or date.today().strftime('%Y-%m-%d')
+        plant_id = request.GET.get('plant_id')
 
         try:
             if plant_id and start_date:
@@ -1110,9 +1110,9 @@ def daily_motor(request):
             plant_id = plant.plant_id
             plants = [plant]
 
-    if request.method == "POST":
-        start_date = request.POST.get('start_date')
-        plant_id = request.POST.get('plant_id')
+    if request.method == "GET":
+        start_date = request.GET.get('start_date') or date.today().strftime('%Y-%m-%d')
+        plant_id = request.GET.get('plant_id')
 
         try:
             if plant_id and start_date:
@@ -1163,9 +1163,9 @@ def daily_bagging(request):
             plant_id = plant.plant_id
             plants = [plant]
 
-    if request.method == "POST":
-        start_date = request.POST.get('start_date')
-        plant_id = request.POST.get('plant_id')
+    if request.method == "GET":
+        start_date = request.GET.get('start_date') or date.today().strftime('%Y-%m-%d')
+        plant_id = request.GET.get('plant_id')
         try:
             if plant_id and start_date:
                 plant_name = Plant.objects.filter(plant_id=plant_id).first()
@@ -1210,10 +1210,10 @@ def batch_shift(request):
             plant_id = plant.plant_id
             plants = [plant]
 
-    if request.method == "POST":
-        start_date = request.POST.get('start_date')
-        plant_id = request.POST.get('plant_id')
-        shift = request.POST.get('shift')
+    if request.method == "GET":
+        start_date = request.GET.get('start_date') or date.today().strftime('%Y-%m-%d')
+        plant_id = request.GET.get('plant_id')
+        shift = request.GET.get('shift')
 
         try:
             if plant_id and start_date:
@@ -1477,10 +1477,10 @@ def recipe_shift(request):
             plant_id = plant.plant_id
             plants = [plant]
 
-    if request.method == "POST":
-        start_date = request.POST.get('start_date')
-        plant_id = request.POST.get('plant_id')
-        shift = request.POST.get('shift')
+    if request.method == "GET":
+        start_date = request.GET.get('start_date') or date.today().strftime('%Y-%m-%d')
+        plant_id = request.GET.get('plant_id')
+        shift = request.GET.get('shift')
 
         try:
             if plant_id and start_date:
@@ -1698,10 +1698,10 @@ def consumption_shift(request):
             plant_id = plant.plant_id
             plants = [plant]
 
-    if request.method == "POST":
-        start_date = request.POST.get('start_date')
-        plant_id = request.POST.get('plant_id')
-        shift = request.POST.get('shift')
+    if request.method == "GET":
+        start_date = request.GET.get('start_date') or date.today().strftime('%Y-%m-%d')
+        plant_id = request.GET.get('plant_id')
+        shift = request.GET.get('shift')
 
         try:
             if plant_id and start_date:
@@ -1914,10 +1914,10 @@ def shift_motor(request):
             plant_id = plant.plant_id
             plants = [plant]
 
-    if request.method == "POST":
-        start_date = request.POST.get('start_date')
-        shift = request.POST.get('shift')
-        plant_id = request.POST.get('plant_id')
+    if request.method == "GET":
+        start_date = request.GET.get('start_date') or date.today().strftime('%Y-%m-%d')
+        shift = request.GET.get('shift')
+        plant_id = request.GET.get('plant_id')
         try:
             if plant_id and shift:
                 # Get shift time range
@@ -1984,10 +1984,10 @@ def shift_bagging(request):
             plant_id = plant.plant_id
             plants = [plant]
 
-    if request.method == "POST":
-        start_date = request.POST.get('start_date')
-        shift = request.POST.get('shift')
-        plant_id = request.POST.get('plant_id')
+    if request.method == "GET":
+        start_date = request.GET.get('start_date') or date.today().strftime('%Y-%m-%d')
+        shift = request.GET.get('shift')
+        plant_id = request.GET.get('plant_id')
         try:
             if plant_id and shift:
                 # Get shift time range
@@ -2055,10 +2055,10 @@ def custom_batch(request):
         if plant:
             plant_id = plant.plant_id
             plants = [plant]
-    if request.method == "POST":
-        start_date = request.POST.get('start_date')
-        end_date = request.POST.get('end_date')
-        plant_id = request.POST.get('plant_id')
+    if request.method == "GET":
+        start_date = request.GET.get('start_date') or date.today().strftime('%Y-%m-%d')
+        end_date = request.GET.get('end_date') or date.today().strftime('%Y-%m-%d')
+        plant_id = request.GET.get('plant_id')
         
         try:
             if plant_id and start_date and end_date:
@@ -2285,10 +2285,10 @@ def custom_recipe(request):
         if plant:
             plant_id = plant.plant_id
             plants = [plant]
-    if request.method == "POST":
-        start_date = request.POST.get('start_date')
-        end_date = request.POST.get('end_date')
-        plant_id = request.POST.get('plant_id')
+    if request.method == "GET":
+        start_date = request.GET.get('start_date') or date.today().strftime('%Y-%m-%d')
+        end_date = request.GET.get('end_date') or date.today().strftime('%Y-%m-%d')
+        plant_id = request.GET.get('plant_id')
         try:
             if plant_id and start_date and end_date:
                 plant_name = Plant.objects.filter(plant_id=request.POST.get('plant_id')).first()
@@ -2470,10 +2470,10 @@ def custom_consumption(request):
             plants = [plant]
 
     # On POST request
-    if request.method == "POST":
-        start_date = request.POST.get('start_date')
-        end_date = request.POST.get('end_date')
-        plant_id = request.POST.get('plant_id')
+    if request.method == "GET":
+        start_date = request.GET.get('start_date') or date.today().strftime('%Y-%m-%d')
+        end_date = request.GET.get('end_date') or date.today().strftime('%Y-%m-%d')
+        plant_id = request.GET.get('plant_id')
 
         try:
             if plant_id and start_date and end_date:
@@ -2645,10 +2645,10 @@ def custom_motor(request):
             plant_id = plant.plant_id
             plants = [plant]
 
-    if request.method == "POST":
-        start_date = request.POST.get('start_date')
-        end_date = request.POST.get('end_date')
-        plant_id = request.POST.get('plant_id')
+    if request.method == "GET":
+        start_date = request.GET.get('start_date') or date.today().strftime('%Y-%m-%d')
+        end_date = request.GET.get('end_date') or date.today().strftime('%Y-%m-%d')
+        plant_id = request.GET.get('plant_id')
 
         try:
             if plant_id and start_date and end_date:
@@ -2691,10 +2691,10 @@ def custom_baging(request):
             plant_id = plant.plant_id
             plants = [plant]
 
-    if request.method == "POST":
-        start_date = request.POST.get('start_date')
-        end_date = request.POST.get('end_date')
-        plant_id = request.POST.get('plant_id')
+    if request.method == "GET":
+        start_date = request.GET.get('start_date') or date.today().strftime('%Y-%m-%d')
+        end_date = request.GET.get('end_date') or date.today().strftime('%Y-%m-%d')
+        plant_id = request.GET.get('plant_id')
         print(start_date)
         try:
             if plant_id and start_date and end_date:
@@ -2727,8 +2727,8 @@ def summary_reports(request):
      
     from_date_str = to_date_str = None
     unique_recipe_data = None
-    shift = request.POST.get('shift')
-    plant_id = request.POST.get('plant_id')
+    shift = request.GET.get('shift')
+    plant_id = request.GET.get('plant_id')
     hammer_stats = pellet_stats = {}
     motor_data = []
     plant_name=None
@@ -2744,14 +2744,14 @@ def summary_reports(request):
         if plant:
             plant_id = plant.plant_id
             plants = [plant]
-    if request.method == "POST":
-        start_date = request.POST.get('start_date')
-        end_date = request.POST.get('end_date')
-        plant_id = request.POST.get('plant_id')    
+    if request.method == "GET":
+        start_date = request.GET.get('start_date') or date.today().strftime('%Y-%m-%d')
+        end_date = request.GET.get('end_date') or date.today().strftime('%Y-%m-%d')
+        plant_id = request.GET.get('plant_id')    
 
     try:
             if plant_id and start_date and end_date:
-                plant_name = Plant.objects.filter(plant_id=request.POST.get('plant_id')).first()
+                plant_name = Plant.objects.filter(plant_id=request.GET.get('plant_id')).first()
                 batch_data = BatchData.objects.filter(
                     plant_id=plant_id,
                     stdate__range=(start_date, end_date)

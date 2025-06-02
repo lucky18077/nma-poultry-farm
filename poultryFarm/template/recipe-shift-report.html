@@ -7,14 +7,14 @@
             <h6 class="fw-semibold mb-0">Recipe Shift Report</h6>
             
             <ul class="d-flex align-items-center gap-2">
-                <form method="POST" action="{% url 'recipe_shift' %}">
-                    {% csrf_token %}
+                <form method="GET" action="{% url 'recipe_shift' %}">
+                     
                     <div class="d-flex flex-wrap align-items-center gap-3">
                         <div>
                             <label for="from_datetime">Plant</label>
                             <select name="plant_id" class="form-select form-select-sm w-auto" required>
                                 {% for plant in plants %}
-                                <option value="{{ plant.plant_id }}" {% if request.POST.plant_id == plant.plant_id|stringformat:"s" %}selected{% endif %}>
+                                <option value="{{ plant.plant_id }}" {% if request.GET.plant_id == plant.plant_id|stringformat:"s" %}selected{% endif %}>
                                     {{ plant.plant_name }}
                                 </option>
                                 {% endfor %}
@@ -23,14 +23,14 @@
                         <div>
                             <label for="shift">Shift</label>
                             <select name="shift" class="form-select form-select-sm w-auto" required>
-                                <option value="shiftA" {% if request.POST.shift == "shiftA" %}selected{% endif %}>Shift A</option>
-                                <option value="shiftB" {% if request.POST.shift == "shiftB" %}selected{% endif %}>Shift B</option>
-                                <option value="shiftC" {% if request.POST.shift == "shiftC" %}selected{% endif %}>Shift C</option>
+                                <option value="shiftA" {% if request.GET.shift == "shiftA" %}selected{% endif %}>Shift A</option>
+                                <option value="shiftB" {% if request.GET.shift == "shiftB" %}selected{% endif %}>Shift B</option>
+                                <option value="shiftC" {% if request.GET.shift == "shiftC" %}selected{% endif %}>Shift C</option>
                             </select>
                         </div>
                         <div>
                             <label for="from_datetime">From Date </label>
-                            <input type="date" name="start_date" class="form-control" value="{{ request.POST.start_date|default:start_date }}" required>
+                            <input type="date" name="start_date" class="form-control" value="{{ request.GET.start_date|default:start_date }}" required>
                         </div>
 
                         <button type="submit" class="btn btn-sm btn-primary-600" style="margin-top: 22px;">
@@ -49,7 +49,7 @@
         <div class="print-only text-center"><h6 style="color: #61acd9;">{{  plant_name.plant_name }}</h6></div>
         <div class="row">
         <div class="col-4 print-only text-left"><h6 style="color: #61acd9;">Shift Recipe Reports</h6></div>
-        <div class="col-4 print-only text-center"><h6 style="color: #61acd9;">Date : {{ request.POST.start_date|default:start_date }}</h6></div>
+        <div class="col-4 print-only text-center"><h6 style="color: #61acd9;">Date : {{ request.GET.start_date|default:start_date }}</h6></div>
         <div class="col-4 print-only text-center"><h6 style="color: #61acd9;">
             {% if shift == "shiftA" %}
                 Shift : A

@@ -4,23 +4,24 @@
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
         <h6 class="fw-semibold mb-0">Daily Batch  Report</h6>
         <ul class="d-flex align-items-center gap-2">
-            <form method="POST" action="{% url 'daily_batch' %}">
-                {% csrf_token %}
+            <form method="GET" action="{% url 'daily_batch' %}">
+                
                 <div class="d-flex flex-wrap align-items-center gap-3">
                     <div>
                         <label for="from_datetime">Plant</label>
                         <select name="plant_id" class="form-select form-select-sm w-auto" required>
                             {% for plant in plants %}
-                            <option value="{{ plant.plant_id }}" {% if request.POST.plant_id == plant.plant_id|stringformat:"s" %}selected{% endif %}>
+                            <option value="{{ plant.plant_id }}" {% if request.GET.plant_id == plant.plant_id|stringformat:"s" %}selected{% endif %}>
                                 {{ plant.plant_name }}
                             </option>
                             {% endfor %}
                         </select>
                     </div>
                      
-                    <div>
-                        <label for="from_datetime">Select Date </label>
-                        <input type="date" name="start_date" class="form-control" value="{{ request.POST.start_date|default:start_date }}" required>
+                   <div>
+                        <label for="start_date" class="form-label">Select Date</label>
+                        <input type="date" id="start_date" name="start_date" class="form-control form-control-sm w-auto"
+                            value="{{ request.GET.start_date|default:start_date }}" required>
                     </div>
                      
 
@@ -38,7 +39,7 @@
     <div class="print-only text-center"><h6 style="color: #61acd9;">{{  plant_name.plant_name }}</h6></div>
     <div class="row justify-content-around"> 
     <div class="col-6 print-only text-left"><h6 style="color: #61acd9;">Daily Batch Reports</h6></div>
-    <div class="col-6 print-only text-center "><h6 style="color: #61acd9;">Date : {{ request.POST.start_date|default:start_date }}</h6></div>
+    <div class="col-6 print-only text-center "><h6 style="color: #61acd9;">Date : {{ request.GET.start_date|default:start_date }}</h6></div>
     </div>
          
         {% if filtered_data %}

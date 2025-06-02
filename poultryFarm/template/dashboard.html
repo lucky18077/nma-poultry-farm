@@ -6,19 +6,21 @@
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
         <h6 class="fw-semibold mb-0">NMA -Poultry Farm</h6>
         <ul class="d-flex align-items-center gap-2">
-            <form method="POST" action="{% url 'dashboard' %}">
-                {% csrf_token %}
+            <form method="GET" action="{% url 'dashboard' %}">
                 <div class="d-flex flex-wrap align-items-center gap-3">
                     <!-- Dropdown to select plant -->
                     {% if not is_plant_owner %}
                     <select name="plant_id" class="form-select form-select-sm w-auto" required>
-                        {% for plant in plants %}
-                        <option value="{{ plant.plant_id }}">{{ plant.plant_name }}</option>
-                        {% endfor %}
+                        
+                            {% for plant in plants %}
+                            <option value="{{ plant.plant_id }}" {% if request.GET.plant_id == plant.plant_id|stringformat:"s" %}selected{% endif %}>
+                                {{ plant.plant_name }}
+                            </option>
+                            {% endfor %}
                     </select>
                     {% endif %}
                     <div>
-                        <input type="date" name="select_date" class="form-control" value="{{ request.POST.select_date|default:select_date }}" required>
+                        <input type="date" name="select_date" class="form-control" value="{{ request.GET.select_date|default:select_date }}" required>
                     </div>
 
                     <!-- Button to submit the form -->

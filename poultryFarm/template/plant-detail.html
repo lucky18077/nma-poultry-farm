@@ -5,16 +5,15 @@
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
         <h6 class="fw-semibold mb-0">{{ plant.plant_name }}</h6>
         <ul class="d-flex align-items-center gap-2">
-            <form method="POST" action="{% url 'plant_detail' plant.plant_id %}">
-                {% csrf_token %}
+            <form method="GET" action="{% url 'plant_detail' plant.plant_id %}">
                 <div class="d-flex flex-wrap align-items-center gap-3">
                     <div>
                         <label for="from_datetime">From DateTime</label>
-                        <input type="date" name="from_datetime" class="form-control" value="{{ request.POST.from_datetime|default:from_datetime }}" required>
+                        <input type="date" name="from_datetime" class="form-control" value="{{ request.GET.from_datetime|default:from_datetime }}" required>
                     </div>
                     <div>
                         <label for="to_datetime">To DateTime</label>
-                        <input type="date" name="to_datetime" class="form-control" value="{{ request.POST.to_datetime|default:to_datetime }}" required>
+                        <input type="date" name="to_datetime" class="form-control" value="{{ request.GET.to_datetime|default:to_datetime }}" required>
                     </div>
                     <button type="submit" class="btn btn-sm btn-primary-600" style="margin-top: 22px;">
                         Submit
@@ -46,7 +45,7 @@
                                     <td>{{ forloop.counter }}</td>
                                     <td>{{ item.Last_RecipeName }}</td>
                                     <td>{{ item.batch_count }}</td>
-                                    <td>{{ item.total_recipe_weight }}</td>
+                                    <td>{{ item.total_recipe_weight|floatformat:2 }}</td>
                                     <td> {{ item.start_time }}</td>
                                     <td>{{ item.end_time }} </td>
                                     <td>{{ item.total_time }}</td>

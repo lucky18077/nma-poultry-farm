@@ -47,8 +47,8 @@
                 <div class="card basic-data-table mb-24">
                     <div class="card-header">
                         <div class="d-flex gap-3">
-                            <h5 class="card-title mb-0">Recipe Name : {{ item.RecipeName }}</h5>
-                            <h5 class="card-title mb-0">Batch Count : {{ item.BatchCount }}</h5>
+                            <h5 class="card-title mb-0">Recipe Name: {{ item.RecipeName }}</h5>
+                            <h5 class="card-title mb-0">Batch Count: {{ item.BatchCount }}</h5>
                         </div>
                     </div>
                     <div class="card-body">
@@ -58,8 +58,8 @@
                                     <tr>
                                         <th>Batch No</th>
                                         <th>Start Time</th>
-                                        {% for matname in material_name_list %}
-                                            <th>{{ matname }}</th>
+                                        {% for mat in item.MaterialNames %}
+                                            <th>{{ mat }}</th>
                                         {% endfor %}
                                     </tr>
                                 </thead>
@@ -67,16 +67,16 @@
                                     <tr>
                                         <td>Set WT</td>
                                         <td></td>
-                                        {% for val in item.Materials %}
-                                            <td>{{ val|floatformat:2 }}</td>
+                                        {% for wt in item.Materials %}
+                                            <td>{{ wt|floatformat:2 }}</td>
                                         {% endfor %}
                                     </tr>
                                     {% for batch in item.ActualBatches %}
                                         <tr>
                                             <td>{{ batch.batch_no }}</td>
                                             <td>{{ batch.start_time }}</td>
-                                            {% for act in batch.values %}
-                                                <td>{{ act|floatformat:2 }}</td>
+                                            {% for val in batch.actual_values %}
+                                                <td>{{ val|floatformat:2 }}</td>
                                             {% endfor %}
                                         </tr>
                                     {% endfor %}

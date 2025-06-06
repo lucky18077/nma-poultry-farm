@@ -67,35 +67,36 @@
             
             <div class="card-body">
                 <table class="table bordered-table mb-0">
-                        <thead>
-                            <tr>
-                                <th>Material</th>
-                                <th>Set Weight (KG)</th>
-                                <th>Actual Weight (KG)</th>
-                                <th>Error (KG)</th>
-                                <th>Error (%)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for row in total_material_data.values %}
-                            <tr>
-                                <td>{{ row.material }}</td>
-                                <td>{{ row.set_total|floatformat:2 }}</td>
-                                <td>{{ row.actual_total|floatformat:2 }}</td>
-                                <td>{{ row.error_total|floatformat:2 }}</td>
-                                <td>{{ row.error_pct|floatformat:2 }}%</td>
-                            </tr>
-                            {% endfor %}
-                            <tr>
-                                <td><strong>Total</strong></td>
-                                <td><strong>{{ total_set|floatformat:2 }}</strong></td>
-                                <td><strong>{{ total_actual|floatformat:2 }}</strong></td>
-                                <td><strong>{{ total_error|floatformat:2 }}</strong></td>
-                                <td><strong>{{ total_error_pct|floatformat:2 }}%</strong></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <thead>
+                        <tr>
+                            <th>Material</th>
+                            <th>Set Weight (KG)</th>
+                            <th>Actual Weight (KG)</th>
+                            <th>Error (KG)</th>
+                            <th>Error (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in total_material_data.values %}
+                        <tr>
+                            <td>{{ row.material }}</td>
+                            <td>{{ row.set_total|floatformat:2 }}</td>
+                            <td>{{ row.actual_total|floatformat:2 }}</td>
+                            <td>{{ row.error_total|floatformat:2 }}</td>
+                            <td>{{ row.error_pct|floatformat:2 }}%</td>
+                        </tr>
+                        {% endfor %}
+                        <tr>
+                            <td><strong>Total</strong></td>
+                            <td><strong>{{ total_set|floatformat:2 }}</strong></td>
+                            <td><strong>{{ total_actual|floatformat:2 }}</strong></td>
+                            <td><strong>{{ total_error|floatformat:2 }}</strong></td>
+                            <td><strong>{{ total_error_pct|floatformat:2 }}%</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
+
         </div>
     </div>    
      
